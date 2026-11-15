@@ -73,6 +73,23 @@
     }).join("");
   }
 
+  /* ---------- 站长模式：日常记录只有站长能增删改，其他人只读 ---------- */
+  const OWNER_KEY = "journal-owner";
+  function isOwner() {
+    try { return localStorage.getItem(OWNER_KEY) === "1"; } catch (e) { return false; }
+  }
+  function applyOwnerUI() {
+    document.body.classList.toggle("is-owner", isOwner());
+  }
+  async function sha256hex(str) {
+    if (window.crypto && crypto.subtle) {
+      const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(str));
+      return Array.from(new Uint8Array(buf)).map(function (b) { return b.toString(16).padStart(2, "0"); }).join("");
+    }
+    return null;
+  }
+  applyOwnerUI();
+
   /* ---------- 渲染：日常记录（封装成函数，新增后可刷新列表） ---------- */
   let revealObserver = null;
   function renderJournal() {
@@ -84,6 +101,13 @@
       const month = (d.getMonth() + 1) + "月";
       const year = d.getFullYear();
       const tags = (e.tags || []).map(function (t) { return '<span class="tag">' + t + "</span>"; }).join("");
+      // 编辑/删除按钮只给站长渲染，普通访客的 DOM 里根本没有这两个按钮
+      const actions = isOwner()
+        ? '<div class="j-actions">' +
+            '<button type="button" class="j-btn" data-act="edit" data-i="' + i + '">✏️ 编辑</button>' +
+            '<button type="button" class="j-btn j-btn--danger" data-act="del" data-i="' + i + '">🗑 删除</button>' +
+          "</div>"
+        : "";
       return (
         '<div class="j-entry reveal">' +
           '<div class="j-date">' +
@@ -95,10 +119,7 @@
             "<h3>" + e.title + "</h3>" +
             "<p>" + e.desc + "</p>" +
             '<div class="tl-tags">' + tags + "</div>" +
-            '<div class="j-actions">' +
-              '<button type="button" class="j-btn" data-act="edit" data-i="' + i + '">✏️ 编辑</button>' +
-              '<button type="button" class="j-btn j-btn--danger" data-act="del" data-i="' + i + '">🗑 删除</button>' +
-            "</div>" +
+            actions +
           "</div>" +
         "</div>"
       );
@@ -109,16 +130,37 @@
     });
   }
 
-  // 恢复 localStorage 里保存的日常记录（新增的条目刷新不丢失）
-  if (typeof JOURNAL !== "undefined") {
+  /* ---------- 数据来源优先级 ----------
+     ① 站长本机未发布的修改（localStorage）
+     ② 线上 journal-data.json（所有人看到的内容，由站长「发布到线上」写入）
+     ③ data.js 里的 JOURNAL 默认值                                        */
+  let localPending = null;
+  if (isOwner()) {
     try {
       const savedJ = JSON.parse(localStorage.getItem("journal-entries") || "null");
-      if (Array.isArray(savedJ) && savedJ.length) {
-        JOURNAL.length = 0;
-        Array.prototype.push.apply(JOURNAL, savedJ);
-      }
+      if (Array.isArray(savedJ) && savedJ.length) localPending = savedJ;
     } catch (err) { /* 忽略坏数据 */ }
   }
+  if (localPending && typeof JOURNAL !== "undefined") {
+    JOURNAL.length = 0;
+    Array.prototype.push.apply(JOURNAL, localPending);
+  }
+
+  // 拉取线上数据（站长有未发布修改时不覆盖）
+  (function loadRemoteJournal() {
+    if (typeof JOURNAL === "undefined" || localPending) return;
+    fetch("assets/js/journal-data.json?t=" + Date.now(), { cache: "no-store" })
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (arr) {
+        if (!Array.isArray(arr) || !arr.length) return;
+        JOURNAL.length = 0;
+        Array.prototype.push.apply(JOURNAL, arr);
+        renderJournal();
+        const s = document.getElementById("statJournal");
+        if (s) { s.setAttribute("data-count", String(JOURNAL.length)); s.textContent = String(JOURNAL.length); }
+      })
+      .catch(function () { /* 文件不存在时静默降级到 data.js */ });
+  })();
 
   /* ---------- 主题切换 ---------- */
   const toggle = document.getElementById("themeToggle");
@@ -370,6 +412,181 @@
     });
   }
 
+  /* ---------- 站长登录 / 退出 ---------- */
+  const ownerMask = document.getElementById("ownerMask");
+  const ownerPw = document.getElementById("ownerPw");
+  const ownerErr = document.getElementById("ownerErr");
+  const ownerOk = document.getElementById("ownerOk");
+  const ownerCancel = document.getElementById("ownerCancel");
+  const ownerExit = document.getElementById("ownerExit");
+
+  function enterOwner() {
+    try { localStorage.setItem(OWNER_KEY, "1"); } catch (e) { /* ignore */ }
+    applyOwnerUI();
+    renderJournal();
+  }
+  function exitOwner() {
+    try { localStorage.removeItem(OWNER_KEY); } catch (e) { /* ignore */ }
+    applyOwnerUI();
+    renderJournal();
+    showToast("已退出站长模式，现在只能浏览");
+  }
+
+  if (ownerMask && ownerOk) {
+    ownerOk.addEventListener("click", async function () {
+      const target = (typeof OWNER !== "undefined" && OWNER.hash) ? String(OWNER.hash).toLowerCase() : "";
+      const hash = await sha256hex(ownerPw ? ownerPw.value : "");
+      if (hash && target && hash === target) {
+        ownerMask.hidden = true;
+        enterOwner();
+        showToast("🔑 已进入站长模式，可以新增 / 编辑 / 删除啦");
+        // 把地址栏里的 ?me=1 去掉，避免刷新又弹一次
+        try { history.replaceState(null, "", location.pathname + location.hash); } catch (e) { /* ignore */ }
+      } else if (ownerErr) {
+        ownerErr.hidden = false;
+        if (ownerPw) { ownerPw.select(); }
+      }
+    });
+    if (ownerPw) {
+      ownerPw.addEventListener("keydown", function (e) { if (e.key === "Enter") ownerOk.click(); });
+    }
+    if (ownerCancel) ownerCancel.addEventListener("click", function () { ownerMask.hidden = true; });
+    ownerMask.addEventListener("click", function (e) { if (e.target === ownerMask) ownerMask.hidden = true; });
+  }
+  if (ownerExit) ownerExit.addEventListener("click", exitOwner);
+
+  // 网址带 ?me=1 且当前还不是站长 → 弹出登录
+  if (/(?:^|[?&])me=1(?:&|$)/.test(location.search) && !isOwner()) {
+    ownerMask.hidden = false;
+    setTimeout(function () { if (ownerPw) ownerPw.focus(); }, 80);
+  }
+
+  /* ---------- 导出 JSON（站长把本机编辑结果落到仓库用） ---------- */
+  const jExport = document.getElementById("journalExport");
+  if (jExport) {
+    jExport.addEventListener("click", function () {
+      const json = JSON.stringify(JOURNAL, null, 2);
+      function done() { showToast("📋 JSON 已复制，粘到 data.js 的 JOURNAL 即可发布"); }
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(json).then(done).catch(fallback);
+      } else { fallback(); }
+      function fallback() {
+        const ta = document.createElement("textarea");
+        ta.value = json;
+        ta.style.position = "fixed"; ta.style.opacity = "0";
+        document.body.appendChild(ta); ta.select();
+        let ok = false;
+        try { ok = document.execCommand("copy"); } catch (e) { ok = false; }
+        ta.remove();
+        showToast(ok ? "📋 JSON 已复制到剪贴板" : "复制失败，请手动复制");
+      }
+    });
+  }
+
+  /* ---------- 一键发布到线上（GitHub API，Token 只存本机） ---------- */
+  const jPublish = document.getElementById("journalPublish");
+  const GH_TOKEN_KEY = "journal-gh-token";
+  function b64Utf8(str) {
+    const bytes = new TextEncoder().encode(str);
+    let bin = "";
+    for (let i = 0; i < bytes.length; i++) bin += String.fromCharCode(bytes[i]);
+    return btoa(bin);
+  }
+  async function ghJson(url, opts) {
+    const res = await fetch(url, opts);
+    if (!res.ok) {
+      let msg = res.status + " " + res.statusText;
+      try { const j = await res.json(); if (j && j.message) msg = j.message; } catch (e) { /* ignore */ }
+      const err = new Error(msg); err.status = res.status; throw err;
+    }
+    return res.json();
+  }
+  if (jPublish) {
+    jPublish.addEventListener("click", async function () {
+      if (!isOwner()) return;
+      if (typeof OWNER === "undefined" || !OWNER.repo || !OWNER.journalPath) {
+        showToast("⚠️ data.js 里还没配置 OWNER.repo / journalPath");
+        return;
+      }
+      let token = "";
+      try { token = localStorage.getItem(GH_TOKEN_KEY) || ""; } catch (e) { /* ignore */ }
+      if (!token) {
+        token = window.prompt(
+          "首次发布需要 GitHub Token（仅保存在你这台设备的浏览器里）\n\n" +
+          "生成：GitHub → Settings → Developer settings → Personal access tokens → Fine-grained / Classic\n" +
+          "权限：对本仓库的 Contents 读 + 写\n\n" +
+          "粘贴 Token："
+        );
+        if (!token) return;
+        token = token.trim();
+        try { localStorage.setItem(GH_TOKEN_KEY, token); } catch (e) { /* ignore */ }
+      }
+      const api = "https://api.github.com/repos/" + OWNER.repo + "/contents/" + OWNER.journalPath;
+      const branch = OWNER.branch || "main";
+      const headers = { Authorization: "token " + token, Accept: "application/vnd.github+json" };
+
+      const label = jPublish.textContent;
+      jPublish.disabled = true;
+      jPublish.textContent = "发布中…";
+      try {
+        let sha = null;
+        try {
+          const info = await ghJson(api + "?ref=" + encodeURIComponent(branch), { headers: headers });
+          sha = info && info.sha;
+        } catch (e) { sha = null; }   // 文件还不存在 → 当作新建
+
+        const body = {
+          message: "content: 更新日常记录 " + new Date().toISOString().slice(0, 16).replace("T", " "),
+          content: b64Utf8(JSON.stringify(JOURNAL, null, 2) + "\n"),
+          branch: branch
+        };
+        if (sha) body.sha = sha;
+
+        await ghJson(api, {
+          method: "PUT",
+          headers: Object.assign({ "Content-Type": "application/json" }, headers),
+          body: JSON.stringify(body)
+        });
+
+        try { localStorage.removeItem("journal-entries"); } catch (e) { /* ignore */ }
+        showToast("🚀 已发布！GitHub Pages 约 1 分钟后更新");
+      } catch (err) {
+        if (err.status === 401 || /Bad credentials/i.test(err.message)) {
+          try { localStorage.removeItem(GH_TOKEN_KEY); } catch (e) { /* ignore */ }
+          showToast("❌ Token 无效，已清除，请重新点击发布");
+        } else if (err.status === 404) {
+          showToast("❌ 仓库/分支/路径不对，或 Token 无该仓库权限");
+        } else {
+          showToast("❌ 发布失败：" + err.message);
+        }
+        console.warn("[journal publish]", err);
+      } finally {
+        jPublish.disabled = false;
+        jPublish.textContent = label;
+      }
+    });
+  }
+
+  /* ---------- 隐藏入口：连点页脚版权 3 次 → 站长登录 ---------- */
+  const copyEl = document.querySelector(".footer__copy");
+  if (copyEl) {
+    let taps = 0, tapTimer = null;
+    copyEl.style.cursor = "default";
+    copyEl.addEventListener("click", function () {
+      if (isOwner()) return;
+      taps++;
+      clearTimeout(tapTimer);
+      tapTimer = setTimeout(function () { taps = 0; }, 1600);
+      if (taps >= 3) {
+        taps = 0;
+        if (ownerMask) {
+          ownerMask.hidden = false;
+          setTimeout(function () { if (ownerPw) ownerPw.focus(); }, 60);
+        }
+      }
+    });
+  }
+
   /* ---------- 新增 / 编辑 / 删除 日常记录 ---------- */
   const addBtn = document.getElementById("addJournal");
   const jMask = document.getElementById("jformMask");
@@ -414,6 +631,7 @@
     }
 
     addBtn.addEventListener("click", function () {
+      if (!isOwner()) return;   // 只有站长能新增
       resetForm();
       openForm(null, -1);
     });
@@ -421,6 +639,7 @@
     jMask.addEventListener("click", function (e) { if (e.target === jMask) jMask.hidden = true; });
 
     document.getElementById("jfSave").addEventListener("click", function () {
+      if (!isOwner()) { jMask.hidden = true; return; }   // 只有站长能保存
       const title = fTitle.value.trim();
       if (!title) { fTitle.focus(); return; }
       const entry = {
@@ -450,7 +669,7 @@
     if (jl) {
       jl.addEventListener("click", function (e) {
         const btn = e.target.closest(".j-btn");
-        if (!btn) return;
+        if (!btn || !isOwner()) return;   // 只有站长能编辑/删除
         const i = parseInt(btn.getAttribute("data-i"), 10);
         if (isNaN(i) || i < 0 || i >= JOURNAL.length) return;
         if (btn.getAttribute("data-act") === "edit") {

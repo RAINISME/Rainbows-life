@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Rainbow's life</title>
   <meta name="description" content="一个记录工作与生活的个人空间" />
-  <link rel="stylesheet" href="assets/css/style.css?v=16" />
+  <link rel="stylesheet" href="assets/css/style.css?v=19" />
 </head>
 <body>
   <!-- 流动渐变背景 -->
@@ -25,7 +25,7 @@
 
   <!-- 音乐播放器（全站常驻，跨页保持曲目与进度） -->
   <div class="music" id="musicBox">
-    <audio id="bgMusic" src="assets/audio/01.mp3?v=2" muted preload="metadata" playsinline webkit-playsinline></audio>
+    <audio id="bgMusic" src="assets/audio/02.mp3?v=2" muted preload="metadata" playsinline webkit-playsinline></audio>
     <div class="music__row">
       <span class="music__disc" id="musicDisc">🎵</span>
       <div class="music__meta">
@@ -143,7 +143,14 @@
     <div class="section__head reveal">
       <h2 class="section__title">日常记录</h2>
       <p class="section__note">生活的厚度，藏在每一个普通的日子里。</p>
-      <button class="journal-add" id="addJournal" type="button">＋ 新增记录</button>
+      <!-- 站长工具条：默认不显示，只有站长登录后才出现（body.is-owner） -->
+      <div class="journal-tools">
+        <span class="journal-owner-badge">🔑 站长模式</span>
+        <button class="journal-add" id="addJournal" type="button">＋ 新增记录</button>
+        <button class="journal-add journal-add--ghost" id="journalPublish" type="button">发布到线上</button>
+        <button class="journal-add journal-add--ghost" id="journalExport" type="button">导出 JSON</button>
+        <button class="journal-add journal-add--ghost" id="ownerExit" type="button">退出</button>
+      </div>
     </div>
     <div class="journal" id="journalList"></div>
   </section>
@@ -176,6 +183,20 @@
       <div class="jform__btns">
         <button type="button" id="jfCancel" class="btn btn--ghost">取消</button>
         <button type="button" id="jfSave" class="btn btn--primary">保存</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 站长登录弹层（日常记录的增删改只对站长开放） -->
+  <div class="jform-mask" id="ownerMask" hidden>
+    <div class="jform" role="dialog" aria-modal="true" aria-label="站长登录">
+      <h3>🔑 站长登录</h3>
+      <p class="jform__hint">日常记录对所有人可见，但只有站长能新增、编辑、删除。</p>
+      <label>密码<input type="password" id="ownerPw" placeholder="请输入站长密码" autocomplete="current-password"></label>
+      <p class="jform__err" id="ownerErr" hidden>密码不对，再试一次？</p>
+      <div class="jform__btns">
+        <button type="button" id="ownerCancel" class="btn btn--ghost">取消</button>
+        <button type="button" id="ownerOk" class="btn btn--primary">进入站长模式</button>
       </div>
     </div>
   </div>
@@ -213,8 +234,8 @@
 
   <button class="to-top" id="toTop" aria-label="回到顶部">↑</button>
 
-  <script src="assets/js/data.js?v=16"></script>
-  <script src="assets/js/main.js?v=13"></script>
-  <script src="assets/js/music.js?v=14"></script>
+  <script src="assets/js/data.js?v=19"></script>
+  <script src="assets/js/main.js?v=15"></script>
+  <script src="assets/js/music.js?v=16"></script>
 </body>
 </html>

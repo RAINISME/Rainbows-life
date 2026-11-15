@@ -130,8 +130,9 @@
         const item = e.target.closest(".music__item");
         if (!item) return;
         const i = parseInt(item.getAttribute("data-i"), 10);
-        if (isNaN(i) || i === current) return;
+        if (isNaN(i) || i === current) { setPlaylistOpen(false); return; }
         setTrack(i, true);
+        setPlaylistOpen(false);   // 选完歌自动收起歌单
       });
       // 键盘操作：Enter / 空格选择歌曲
       musicList.addEventListener("keydown", function (e) {
@@ -140,17 +141,40 @@
         if (!item) return;
         e.preventDefault();
         const i = parseInt(item.getAttribute("data-i"), 10);
-        if (isNaN(i) || i === current) return;
+        if (isNaN(i) || i === current) { setPlaylistOpen(false); return; }
         setTrack(i, true);
+        setPlaylistOpen(false);   // 选完歌自动收起歌单
       });
     }
-    // 移动端：点唱片或「歌单」按钮展开/收起歌单
+    // 移动端：点唱片或「歌单」按钮展开/收起歌单（再点一次收起）
     const musicDisc = document.getElementById("musicDisc");
     const musicListBtn = document.getElementById("musicListBtn");
-    function togglePlaylist() {
-      const open = musicBox.classList.toggle("music--open");
+    function setPlaylistOpen(open) {
+      musicBox.classList.toggle("music--open", open);
+      // 收起时加 music--closed，用来压掉 hover / :focus-within 造成的“收不起来”
+      musicBox.classList.toggle("music--closed", !open);
       if (musicListBtn) musicListBtn.setAttribute("aria-expanded", open ? "true" : "false");
+      if (!open && musicListBtn) musicListBtn.blur();
     }
+    function togglePlaylist(force) {
+      const open = (typeof force === "boolean") ? force : !musicBox.classList.contains("music--open");
+      setPlaylistOpen(open);
+    }
+    // 鼠标离开歌单区域后解除“已关闭”标记，下次 hover 仍能正常展开
+    const playlistWrap = musicBox.querySelector(".music__playlist");
+    if (playlistWrap) {
+      playlistWrap.addEventListener("mouseleave", function () {
+        musicBox.classList.remove("music--closed");
+      });
+    }
+    // 点空白处收起
+    document.addEventListener("click", function (e) {
+      if (!musicBox.contains(e.target)) setPlaylistOpen(false);
+    });
+    // 按 Esc 收起
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "Escape") setPlaylistOpen(false);
+    });
     /* ---------- 上一首 / 下一首（列表循环，点击即切换并播放） ---------- */
     function stepTrack(delta) {
       if (!playlist.length) return;

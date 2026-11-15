@@ -91,8 +91,8 @@ const PET_VIDEOS = [
 //         不依赖任何外部目录（微信收到的文件需先复制进 assets/audio/ 再在此登记）。
 // 加歌：把音频（mp3 / wav 均可）放进 assets/audio/，在下面加一行 { title, artist, src } 即可。
 const PLAYLIST = [
-  { title: "爱死了昨天", artist: "彩虹", src: "assets/audio/01.mp3?v=2" },
   { title: "曾经最爱", artist: "彩虹", src: "assets/audio/02.mp3?v=2" },
+  { title: "爱死了昨天", artist: "彩虹", src: "assets/audio/01.mp3?v=2" },
   { title: "小雪（片段）", artist: "彩虹", src: "assets/audio/03.mp3?v=2" },
   { title: "深爱的人做不了朋友", artist: "彩虹", src: "assets/audio/04.mp3?v=2" },
   { title: "预谋", artist: "彩虹", src: "assets/audio/05.mp3?v=2" }
@@ -110,3 +110,28 @@ const JOURNAL = [
     tags: ["生活", "建站"]
   }
 ];
+
+/* ============================================================
+   站长模式配置 —— 日常记录「只有站长能增删改，其他人只能看」
+   ------------------------------------------------------------
+   进入方式（两种）：
+     1) 网址后加 ?me=1  （例如 index.html?me=1）
+     2) 连续点击页脚「© 2026 彩虹 · 用心记录每一天」3 次（隐藏入口）
+   默认密码：rainbow2026
+   改密码：把新密码的 SHA-256 十六进制填到下面 hash 里。
+     生成方法（浏览器控制台执行）：
+       crypto.subtle.digest('SHA-256', new TextEncoder().encode('你的新密码'))
+         .then(b => console.log([...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('')))
+   说明：这是纯前端的「软门禁」，目的是防止路人误操作/随手改，
+         不能替代真正的服务端鉴权（静态站点没有后端）。
+   ------------------------------------------------------------
+   一键发布：站长模式下首次点「发布到线上」会让你粘贴一个 GitHub Token
+   （需要该仓库 Contents 读写权限），Token 只存在你本机浏览器，
+   发布时通过 GitHub API 更新 journalData.path 指向的文件，全站生效。
+   ============================================================ */
+const OWNER = {
+  hash: "0bb27746937610744f3c1129266330ff3a0b4f4795761662e7b3ad6a08e624dd",
+  repo: "RAINISME/Rainbows-life",   // GitHub 仓库（owner/repo）
+  branch: "main",                    // 分支
+  journalPath: "assets/js/journal-data.json"  // 日常记录数据文件
+};

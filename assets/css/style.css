@@ -671,6 +671,7 @@ html[data-theme="light"] .theme-toggle .icon-moon { display: block; }
 .j-body .tl-tags { margin-top: 12px; }
 .j-body .tag { background: transparent; border-color: var(--accent-1); color: var(--accent-1); }
 .j-actions { display: flex; gap: 10px; margin-top: 16px; }
+body:not(.is-owner) .j-actions { display: none !important; }
 .j-btn {
   padding: 6px 16px; border-radius: 999px; cursor: pointer;
   font-size: 13px; font-weight: 500; font-family: inherit;
@@ -690,6 +691,25 @@ html[data-theme="light"] .theme-toggle .icon-moon { display: block; }
   align-self: center;
 }
 .journal-add:hover { transform: translateY(-2px); box-shadow: 0 16px 30px -10px rgba(124, 92, 255, .65); }
+
+/* 站长工具条：默认完全隐藏，只有登录站长后（body.is-owner）才显示 */
+.journal-tools { display: none; align-items: center; gap: 10px; flex-wrap: wrap; margin-left: auto; align-self: center; }
+body.is-owner .journal-tools { display: flex; }
+.journal-owner-badge {
+  font-size: 12px; padding: 5px 12px; border-radius: 999px;
+  color: #ffd9a0; background: rgba(255, 176, 66, .14);
+  border: 1px solid rgba(255, 176, 66, .35); white-space: nowrap;
+}
+.journal-add--ghost {
+  background: transparent; color: var(--text);
+  border: 1px solid rgba(255, 255, 255, .22); box-shadow: none;
+}
+.journal-add--ghost:hover { transform: translateY(-2px); border-color: var(--accent-1); color: var(--accent-1); box-shadow: none; }
+html[data-theme="light"] .journal-add--ghost { border-color: rgba(20, 20, 50, .18); }
+
+/* 站长登录弹层提示与错误 */
+.jform__hint { font-size: 13px; color: var(--muted); line-height: 1.7; margin: -6px 0 14px; }
+.jform__err { font-size: 12.5px; color: #ff6b6b; margin: -4px 0 10px; }
 
 /* ---------- 新增记录弹层 ---------- */
 .jform-mask {
@@ -895,3 +915,15 @@ html[data-theme="light"] .theme-toggle .icon-moon { display: block; }
 @media (prefers-reduced-motion: reduce) {
   .blob, .wheel, .music.playing .music__disc { animation: none !important; }
 }
+
+/* ---------- 歌单开合：点一次展开，再点一次收起 ----------
+   .music--closed 用 !important 压过 hover / :focus-within，
+   否则按钮保持焦点时列表会一直显示，看着像“收不起来”。 */
+.music.music--closed .music__list {
+  max-height: 0 !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+  border-color: transparent !important;
+}
+/* 触屏设备上点击后 :hover 会“粘住”，但 .music--closed 已用 !important 压过，
+   这里不再额外隐藏，否则展开状态也会被一起压掉。 */
