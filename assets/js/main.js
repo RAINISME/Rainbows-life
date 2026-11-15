@@ -48,7 +48,7 @@
       const photos = (p.photos || []).map(function (ph) {
         return (
           '<figure class="pet__photo">' +
-            '<img src="' + ph.src + '" alt="' + (ph.alt || "") + '" loading="lazy">' +
+            '<img src="' + ph.src + '" alt="' + (ph.alt || "") + '" loading="lazy" decoding="async">' +
             (ph.alt ? '<figcaption>' + ph.alt + "</figcaption>" : "") +
           "</figure>"
         );

@@ -68,9 +68,9 @@ const PETS = [
     traits: ["活泼", "粘人", "爱叫", "会说话"],
     dailyUrl: "pet-daily.html",
     photos: [
-      { src: "assets/img/pet-mango.jpg", alt: "小芒果" },
-      { src: "assets/img/pet-white.jpg", alt: "小白" },
-      { src: "assets/img/pet-green.jpg", alt: "小绿" }
+      { src: "assets/img/pet-mango.webp", alt: "小芒果" },
+      { src: "assets/img/pet-white.webp", alt: "小白" },
+      { src: "assets/img/pet-green.webp", alt: "小绿" }
     ]
   }
 ];
