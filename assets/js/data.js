@@ -91,11 +91,11 @@ const PET_VIDEOS = [
 //         不依赖任何外部目录（微信收到的文件需先复制进 assets/audio/ 再在此登记）。
 // 加歌：把音频（mp3 / wav 均可）放进 assets/audio/，在下面加一行 { title, artist, src } 即可。
 const PLAYLIST = [
-  { title: "曾经最爱", artist: "彩虹", src: "assets/audio/01.mp3" },
-  { title: "小雪（片段）", artist: "彩虹", src: "assets/audio/02.mp3" },
-  { title: "深爱的人做不了朋友", artist: "彩虹", src: "assets/audio/03.mp3" },
-  { title: "爱死了昨天", artist: "彩虹", src: "assets/audio/04.wav" },
-  { title: "预谋", artist: "彩虹", src: "assets/audio/05.wav" }
+  { title: "爱死了昨天", artist: "彩虹", src: "assets/audio/01.mp3?v=2" },
+  { title: "曾经最爱", artist: "彩虹", src: "assets/audio/02.mp3?v=2" },
+  { title: "小雪（片段）", artist: "彩虹", src: "assets/audio/03.mp3?v=2" },
+  { title: "深爱的人做不了朋友", artist: "彩虹", src: "assets/audio/04.mp3?v=2" },
+  { title: "预谋", artist: "彩虹", src: "assets/audio/05.mp3?v=2" }
 ];
 
 // 日常记录（倒序：最新的放最上面）
