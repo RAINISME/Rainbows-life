@@ -27,6 +27,12 @@
   const musicToggle = document.getElementById("musicToggle");
   const musicFill = document.getElementById("musicFill");
   if (musicBox && bgMusic && musicToggle) {
+    // iOS/移动端兼容：inline 播放 + 仅预载元数据（避免一次性下载 60MB 大文件导致卡顿）
+    try {
+      bgMusic.setAttribute("playsinline", "");
+      bgMusic.setAttribute("webkit-playsinline", "");
+      bgMusic.preload = "metadata";
+    } catch (e) { /* 忽略 */ }
     const musicTitle = document.getElementById("musicTitle");
     const musicArtist = document.getElementById("musicArtist");
     const musicList = document.getElementById("musicList");
@@ -322,5 +328,19 @@
     bgMusic.addEventListener("canplay", ensurePlaying);
     bgMusic.addEventListener("loadedmetadata", ensurePlaying);
     ensurePlaying();
+
+    // 粗指针设备（手机/平板）：系统常拦截自动播放，给一个明确的「点击播放」提示
+    const coarse = !!(window.matchMedia && window.matchMedia("(pointer: coarse)").matches);
+    if (coarse) {
+      setTimeout(function () {
+        if (bgMusic.paused && !musicBox.classList.contains("music--empty") && musicTitle) {
+          musicTitle.textContent = "▶ 点击播放音乐";
+        }
+      }, 2500);
+      bgMusic.addEventListener("play", function () {
+        const t = playlist[current];
+        if (t && musicTitle) musicTitle.textContent = t.title;
+      });
+    }
   }
 })();

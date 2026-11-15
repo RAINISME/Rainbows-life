@@ -8,12 +8,12 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Serif+SC:wght@500;700;900&family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="assets/css/style.css?v=12" />
+  <link rel="stylesheet" href="assets/css/style.css?v=14" />
 </head>
 <body class="subpage-body">
   <!-- 音乐播放器（全站常驻，跨页保持曲目与进度） -->
   <div class="music" id="musicBox">
-    <audio id="bgMusic" src="assets/audio/01.mp3" muted preload="auto"></audio>
+    <audio id="bgMusic" src="assets/audio/01.mp3" muted preload="metadata" playsinline webkit-playsinline></audio>
     <div class="music__row">
       <span class="music__disc" id="musicDisc">🎵</span>
       <div class="music__meta">
@@ -70,6 +70,6 @@
 
   <script src="assets/js/data.js?v=12"></script>
   <script src="assets/js/pet-daily.js?v=12"></script>
-  <script src="assets/js/music.js?v=13"></script>
+  <script src="assets/js/music.js?v=14"></script>
 </body>
 </html>

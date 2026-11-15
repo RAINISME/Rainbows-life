@@ -266,7 +266,14 @@ html[data-theme="light"] .music__bar { background: rgba(20, 20, 50, .07); }
     left: 0; right: 0; top: 58px; height: 44px;
     gap: 8px; padding: 0 12px; z-index: 35;
     align-items: center;
+    /* 手机端：给播放器一个看得见的半透明底，否则用户不知道它在哪、也不会去点 */
+    background: rgba(20, 18, 36, .55);
+    -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
+    border-radius: 0 0 12px 12px;
+    opacity: 1;
   }
+  .music__title, .music__artist { color: #ececf4; opacity: .92; }
+  .music__btn, .music__btn--sm { opacity: .9; border-color: rgba(255, 255, 255, .35); }
   .music__row { flex: 0 1 auto; gap: 6px; }
   .music__disc { width: 24px; height: 24px; flex: 0 0 24px; font-size: 11px; }
   .music__meta { max-width: 110px; flex: 0 1 110px; }
