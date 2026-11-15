@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Rainbow's life</title>
+  <meta name="description" content="一个记录工作与生活的个人空间" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Serif+SC:wght@500;700;900&family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="assets/css/style.css?v=12" />
+</head>
+<body>
+  <!-- 流动渐变背景 -->
+  <div class="aurora" aria-hidden="true">
+    <span class="blob blob-1"></span>
+    <span class="blob blob-2"></span>
+    <span class="blob blob-3"></span>
+  </div>
+  <!-- 摩羯座 文字水印（由 JS 铺满，置于背景之上、内容之下） -->
+  <div class="watermark" aria-hidden="true"></div>
+
+  <!-- 移动端顶栏 -->
+  <div class="topbar">
+    <a href="#hero" class="topbar__brand">Rainbow's life</a>
+    <button class="topbar__burger" id="navBurger" aria-label="菜单"><span></span><span></span><span></span></button>
+  </div>
+
+  <!-- 音乐播放器（全站常驻，跨页保持曲目与进度） -->
+  <div class="music" id="musicBox">
+    <audio id="bgMusic" src="assets/audio/01.mp3" muted preload="auto"></audio>
+    <div class="music__row">
+      <span class="music__disc" id="musicDisc">🎵</span>
+      <div class="music__meta">
+        <div class="music__title" id="musicTitle">曾经最爱</div>
+        <div class="music__artist" id="musicArtist">歌唱者：彩虹</div>
+      </div>
+      <button class="music__btn music__btn--sm" id="musicPrev" type="button" aria-label="上一首">⏮</button>
+      <button class="music__btn" id="musicToggle" type="button" aria-label="播放">▶</button>
+      <button class="music__btn music__btn--sm" id="musicNext" type="button" aria-label="下一首">⏭</button>
+    </div>
+    <div class="music__playlist">
+      <button class="music__list-btn" id="musicListBtn" type="button" aria-label="歌单" aria-expanded="false">☰ <span>歌单</span></button>
+      <div class="music__list" id="musicList"></div>
+    </div>
+    <!-- 进度条贴在通栏底边 -->
+    <div class="music__bar"><span class="music__fill" id="musicFill"></span></div>
+  </div>
+
+  <!-- 左侧导航 -->
+  <aside class="sidebar" id="sidebar">
+    <a href="#hero" class="sidebar__brand">Rainbow's life</a>
+    <p class="sidebar__tagline">工作 · 生活 · 热爱</p>
+
+    <nav class="sidebar__links" id="navLinks">
+      <a href="#about" class="active">关　　于</a>
+      <a href="#work">工　　作</a>
+      <a href="#hobbies">兴　　趣</a>
+      <a href="#pets">宠　　物</a>
+      <a href="#contact">联　　系</a>
+    </nav>
+    <div class="sidebar__foot">
+      <button class="theme-toggle" id="themeToggle" aria-label="切换主题背景色">
+        <svg class="icon-sun" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+        <svg class="icon-moon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg>
+        <span class="sidebar__foot-label">切换主题背景色</span>
+      </button>
+    </div>
+  </aside>
+
+  <div class="main">
+
+  <!-- Hero -->
+  <section class="hero" id="hero">
+    <div class="hero__inner">
+      <p class="hero__eyebrow reveal">HELLO, I'M</p>
+      <h1 class="hero__title reveal">彩虹</h1>
+      <p class="hero__sub reveal">
+        <span id="typed"></span>
+      </p>
+      <p class="hero__desc reveal">在工作与热爱之间，认真生活。<br>这里收集了我的项目、兴趣，以及每一个值得记录的日常瞬间。</p>
+      <div class="hero__cta reveal">
+        <a href="#work" class="btn btn--primary">看看我的工作</a>
+        <a href="#hobbies" class="btn btn--ghost">翻翻生活</a>
+      </div>
+    </div>
+    <a href="#about" class="hero__scroll" aria-label="向下滚动">
+      <span class="mouse"><span class="wheel"></span></span>
+    </a>
+  </section>
+
+  <!-- 关于 -->
+  <section class="section" id="about">
+    <div class="section__head reveal">
+      <h2 class="section__title">关于我</h2>
+    </div>
+    <div class="about">
+      <div class="about__stats reveal">
+        <div class="stat"><span class="stat__num" data-count="10+">0</span><span class="stat__label">工作经验</span></div>
+        <div class="stat"><span class="stat__num" data-count="鹦鹉">鹦鹉</span><span class="stat__label">我的宠物</span></div>
+        <div class="stat"><span class="stat__num" id="statHobby" data-count="4">0</span><span class="stat__label">兴趣领域</span></div>
+        <div class="stat"><span class="stat__num" id="statJournal" data-count="1">0</span><span class="stat__label">日常记录</span></div>
+      </div>
+      <div class="about__text reveal">
+        <p>你好呀，欢迎来到我的小角落 👋 我叫 <strong>邵彩红</strong>，你可以叫我<strong>小邵</strong>，也可以叫我<strong>彩虹</strong>。90 后，河北承德人——大学一毕业就扎进北京，做个快乐的「北漂」。</p>
+        <p>白天的工作就是和 bug 斗智斗勇：从需求评审就提前介入，设计测试用例、搭建测试环境，做功能与接口自动化，再到回归测试和上线前把关。我特别享受"把藏得很深的缺陷一个个揪出来"的成就感，也擅长把复杂的流程拆成清晰、可执行的步骤，让质量这件事变得可控、可追踪。</p>
+        <p>下班后的世界才算真正属于我——跑步、骑行、打乒乓球、做饭、KTV 唱歌、养鹦鹉……动静皆宜，怎么舒服怎么来。认真做事，认真生活，这是我对待日子的方式。</p>
+        <p>这个空间，就是我留给自己的小角落，用来记录日常、安放热爱。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 工作 -->
+  <section class="section" id="work">
+    <div class="section__head reveal">
+      <h2 class="section__title">工作经历</h2>
+    </div>
+    <div class="work-summary reveal">
+      <p><strong>软件测试工程师</strong>，入行 <strong>10+ 年</strong>。一路在金融、人工智能、SCRM、供应链等多个领域里摸爬滚打，既打磨过面向企业的 <strong>B 端</strong>系统，也服务过直面用户的 <strong>C 端</strong>产品。从「中国体育彩票」「金融借贷」，到「出行 SaaS 服务」「供应链平台」……大大小小的项目里，都有我把关质量的身影。</p>
+      <p>功能、接口、性能、自动化测试样样上手，熟悉测试用例设计、缺陷管理与常见测试工具，也习惯把质量意识贯穿到需求评审到上线回归的每一个环节——在「快交付」和「稳质量」之间，我总能找到那个平衡点。</p>
+      <div class="work-summary__tags">
+        <span class="tag">金融</span><span class="tag">人工智能</span><span class="tag">SCRM</span><span class="tag">供应链</span><span class="tag">B端</span><span class="tag">C端</span><span class="tag">接口</span><span class="tag">Python</span><span class="tag">数据库</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- 兴趣 -->
+  <section class="section" id="hobbies">
+    <div class="section__head reveal">
+      <h2 class="section__title">兴趣与热爱</h2>
+    </div>
+    <div class="hobby-grid" id="hobbyGrid"></div>
+  </section>
+
+  <!-- 我的宠物 -->
+  <section class="section" id="pets">
+    <div class="section__head reveal">
+      <h2 class="section__title">我的宠物</h2>
+      <p class="section__note">生活里最软的那块地方。</p>
+    </div>
+    <div class="pet-grid" id="petGrid"></div>
+  </section>
+
+  <!-- 日常记录 -->
+  <section class="section" id="journal">
+    <div class="section__head reveal">
+      <h2 class="section__title">日常记录</h2>
+      <p class="section__note">生活的厚度，藏在每一个普通的日子里。</p>
+      <button class="journal-add" id="addJournal" type="button">＋ 新增记录</button>
+    </div>
+    <div class="journal" id="journalList"></div>
+  </section>
+
+
+  <!-- 联系 -->
+  <footer class="footer" id="contact">
+    <div class="footer__inner reveal">
+      <h2 class="footer__title">一起聊聊？</h2>
+      <p class="footer__desc">无论是合作、交流，还是单纯打个招呼，我都欢迎。</p>
+      <div class="footer__links">
+        <a href="mailto:hello@example.com" class="chip">✉️ 邮箱</a>
+        <a href="#" class="chip" id="githubChip">🐱 GitHub</a>
+        <a href="#" class="chip" id="guestbookChip">💬 留言</a>
+      </div>
+    </div>
+    <p class="footer__copy">© <span id="year"></span> 彩虹 · 用心记录每一天</p>
+  </footer>
+  </div><!-- /.main -->
+
+  <!-- 新增记录弹层 -->
+  <div class="jform-mask" id="jformMask" hidden>
+    <div class="jform" role="dialog" aria-label="新增记录">
+      <h3>新增记录</h3>
+      <label>日期<input type="date" id="jfDate"></label>
+      <label>标题<input type="text" id="jfTitle" placeholder="今天发生了什么（必填）"></label>
+      <label>心情<input type="text" id="jfMood" placeholder="如：☀️ 开心"></label>
+      <label>记录<textarea id="jfDesc" rows="3" placeholder="写点什么…"></textarea></label>
+      <label>标签<input type="text" id="jfTags" placeholder="逗号分隔，如：跑步, 户外"></label>
+      <div class="jform__btns">
+        <button type="button" id="jfCancel" class="btn btn--ghost">取消</button>
+        <button type="button" id="jfSave" class="btn btn--primary">保存</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 留言弹框 -->
+  <div class="guest-mask" id="guestMask" hidden>
+    <div class="guest-card" role="dialog" aria-modal="true" aria-labelledby="guestTitle">
+      <button type="button" class="guest-close" id="guestClose" aria-label="关闭">×</button>
+      <h3 class="guest-title" id="guestTitle">给我留个言 💬</h3>
+      <p class="guest-sub">想说什么都可以，我会一条条看～</p>
+
+      <form class="guest-form" id="guestForm">
+        <label class="guest-label" for="guestName">你的称呼</label>
+        <input class="guest-input" id="guestName" type="text" maxlength="20" placeholder="不填就是「匿名朋友」" />
+        <label class="guest-label" for="guestText">留言内容</label>
+        <textarea class="guest-input guest-textarea" id="guestText" rows="4" maxlength="200" placeholder="写点什么吧……（最多 200 字）"></textarea>
+        <div class="guest-form__foot">
+          <span class="guest-count" id="guestCount">0 / 200</span>
+          <button type="submit" class="btn btn--primary">发送留言</button>
+        </div>
+      </form>
+
+      <div class="guest-list-wrap">
+        <div class="guest-list__head">
+          <span>留言板</span>
+          <span class="guest-hint">仅保存在当前浏览器</span>
+        </div>
+        <ul class="guest-list" id="guestList"></ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- 轻提示 -->
+  <div class="toast" id="toast" hidden></div>
+
+  <button class="to-top" id="toTop" aria-label="回到顶部">↑</button>
+
+  <script src="assets/js/data.js?v=12"></script>
+  <script src="assets/js/main.js?v=12"></script>
+  <script src="assets/js/music.js?v=12"></script>
+</body>
+</html>
