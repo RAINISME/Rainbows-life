@@ -135,3 +135,15 @@ const OWNER = {
   branch: "main",                    // 分支
   journalPath: "assets/js/journal-data.json"  // 日常记录数据文件
 };
+
+/* ============================================================
+   留言板后端（Supabase）
+   - url / key 都是公开信息（publishable key 本来就要打包进网页），
+     安全性由数据库 RLS 策略保证：anon 只能 INSERT，站长登录后才能 SELECT/DELETE。
+   - 站长登录用邮箱验证码（Supabase Auth OTP），不额外注册账号。
+   ============================================================ */
+const GUESTBOOK = {
+  url: "https://ojcegjyawjlbmixcvkoh.supabase.co",
+  key: "sb_publishable_kgz6S0Lgy7isr6GZgCqRdw_oSM4h7KL",
+  table: "guestbook"
+};

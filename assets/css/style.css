@@ -935,3 +935,20 @@ html[data-theme="light"] .journal-add--ghost { border-color: rgba(20, 20, 50, .1
 body.is-owner .guest-list-wrap { display: block; }
 .guest-hint--owner { display: none; }
 body.is-owner .guest-hint--owner { display: inline; }
+
+/* ---------- 留言板：站长邮箱验证区 ---------- */
+.guest-admin {
+  margin-top: 14px; padding: 14px;
+  border-radius: 12px; background: var(--surface);
+  border: 1px solid var(--border);
+}
+.guest-admin__tip { font-size: 12px; color: var(--muted); margin-bottom: 10px; }
+.guest-admin__row { display: flex; gap: 8px; align-items: center; }
+.guest-admin__row .guest-input { flex: 1; min-width: 0; }
+.guest-admin__row .btn { padding: 9px 14px; font-size: 12px; white-space: nowrap; }
+.guest-admin__err { font-size: 12px; color: #ff6b6b; margin-top: 8px; }
+.guest-admin__logout {
+  margin-top: 10px; background: transparent; border: 0;
+  color: var(--muted); font-size: 11px; cursor: pointer; text-decoration: underline;
+}
+.guest-admin__logout:hover { color: var(--accent-2); }

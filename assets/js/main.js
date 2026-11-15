@@ -288,55 +288,133 @@
     tick();
   }
 
-  /* ---------- 留言弹框（静态站点：留言保存在本机 localStorage） ---------- */
+  /* ---------- 留言弹框（后端 Supabase：访客只写不读，站长 OTP 登录后查看） ---------- */
   const guestChip = document.getElementById("guestbookChip");
   const guestMask = document.getElementById("guestMask");
   if (guestChip && guestMask) {
-    const GB_KEY = "guestbook-entries";
+    const SB = (typeof GUESTBOOK !== "undefined") ? GUESTBOOK : null;
     const gForm = document.getElementById("guestForm");
     const gName = document.getElementById("guestName");
     const gText = document.getElementById("guestText");
     const gCount = document.getElementById("guestCount");
     const gList = document.getElementById("guestList");
+    const gAdmin = document.getElementById("guestAdmin");
+    const gTip = gAdmin ? gAdmin.querySelector(".guest-admin__tip") : null;
+    const gStep1 = document.getElementById("guestStep1");
+    const gStep2 = document.getElementById("guestStep2");
+    const gEmail = document.getElementById("guestEmail");
+    const gOtp = document.getElementById("guestOtp");
+    const gSend = document.getElementById("guestSendOtp");
+    const gVerify = document.getElementById("guestVerifyOtp");
+    const gErr = document.getElementById("guestAdminErr");
+    const gLogout = document.getElementById("guestLogout");
+    const SESS_KEY = "guest-admin-session";
 
     function esc(s) {
-      return String(s).replace(/[&<>"']/g, function (c) {
+      return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) {
         return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
       });
     }
-    function readGuest() {
+    function sbFetch(path, opts, token) {
+      const headers = Object.assign({
+        "apikey": SB.key,
+        "Authorization": "Bearer " + (token || SB.key),
+        "Content-Type": "application/json"
+      }, (opts && opts.headers) || {});
+      return fetch(SB.url + path, Object.assign({}, opts, { headers: headers }));
+    }
+    function readSession() { try { return JSON.parse(localStorage.getItem(SESS_KEY) || "null"); } catch (e) { return null; } }
+    function saveSession(s) { try { localStorage.setItem(SESS_KEY, JSON.stringify(s)); } catch (e) { /* ignore */ } }
+    function clearSession() { try { localStorage.removeItem(SESS_KEY); } catch (e) { /* ignore */ } }
+    function adminErr(msg) { if (gErr) { gErr.textContent = msg; gErr.hidden = false; } }
+    function clearErr() { if (gErr) gErr.hidden = true; }
+    function jwtPayload(t) {
       try {
-        const v = JSON.parse(localStorage.getItem(GB_KEY) || "[]");
-        return Array.isArray(v) ? v : [];
-      } catch (err) { return []; }
+        const b = t.split(".")[1].replace(/-/g, "+").replace(/_/g, "/");
+        return JSON.parse(decodeURIComponent(atob(b).split("").map(function (c) {
+          return "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2);
+        }).join("")));
+      } catch (e) { return null; }
     }
-    function writeGuest(list) {
-      try { localStorage.setItem(GB_KEY, JSON.stringify(list)); } catch (err) { /* 忽略存储不可用 */ }
+    // access_token 过期时用 refresh_token 续期，避免频繁收验证码
+    async function ensureSession() {
+      let s = readSession();
+      if (!s || !s.access_token) return null;
+      const pl = jwtPayload(s.access_token);
+      if (pl && pl.exp && pl.exp * 1000 > Date.now() + 60000) return s;
+      if (!s.refresh_token) { clearSession(); return null; }
+      try {
+        const r = await sbFetch("/auth/v1/token?grant_type=refresh_token", {
+          method: "POST", body: JSON.stringify({ refresh_token: s.refresh_token })
+        });
+        if (!r.ok) { clearSession(); return null; }
+        const d = await r.json();
+        s = { access_token: d.access_token, refresh_token: d.refresh_token || s.refresh_token };
+        saveSession(s);
+        return s;
+      } catch (e) { clearSession(); return null; }
     }
-    function renderGuest() {
+
+    function showAdminLogin(msg) {
+      if (!gAdmin) return;
+      gAdmin.hidden = false;
+      if (gTip) gTip.textContent = msg || "验证站长身份后，才能查看访客留言";
+      if (gStep1) gStep1.hidden = false;
+      if (gStep2) gStep2.hidden = true;
+      if (gLogout) gLogout.hidden = true;
+      clearErr();
+    }
+    function showAdminLogged() {
+      if (!gAdmin) return;
+      gAdmin.hidden = false;
+      if (gTip) gTip.textContent = "✅ 已验证站长身份";
+      if (gStep1) gStep1.hidden = true;
+      if (gStep2) gStep2.hidden = true;
+      if (gLogout) gLogout.hidden = false;
+      clearErr();
+    }
+
+    function fmtTime(iso) {
+      const d = new Date(iso);
+      if (isNaN(d.getTime())) return "";
+      const pad = function (n) { return String(n).padStart(2, "0"); };
+      return d.getFullYear() + "." + pad(d.getMonth() + 1) + "." + pad(d.getDate()) +
+             " " + pad(d.getHours()) + ":" + pad(d.getMinutes());
+    }
+
+    async function renderGuest() {
       if (!gList) return;
-      // 留言板只给站长看；普通访客提交后不反显，也看不到别人的留言
-      if (!isOwner()) { gList.innerHTML = ""; return; }
-      const list = readGuest();
-      if (!list.length) {
-        gList.innerHTML = '<li class="guest-empty">还没有留言，来写第一条吧～</li>';
-        return;
+      if (!isOwner()) { gList.innerHTML = ""; return; }   // 访客不渲染任何留言
+      const s = await ensureSession();
+      if (!s) { showAdminLogin(); gList.innerHTML = ""; return; }
+      showAdminLogged();
+      try {
+        const r = await sbFetch("/rest/v1/" + SB.table + "?select=*&order=created_at.desc&limit=100", {}, s.access_token);
+        if (!r.ok) throw new Error("HTTP " + r.status);
+        const list = await r.json();
+        if (!Array.isArray(list) || !list.length) {
+          gList.innerHTML = '<li class="guest-empty">还没有留言～</li>';
+          return;
+        }
+        gList.innerHTML = list.map(function (m) {
+          return (
+            '<li class="guest-item">' +
+              '<div class="guest-item__top">' +
+                '<span class="guest-item__name">' + esc(m.name) + '</span>' +
+                '<span class="guest-item__actions">' +
+                  '<span class="guest-item__time">' + esc(fmtTime(m.created_at)) + '</span>' +
+                  '<button type="button" class="guest-item__del" data-id="' + esc(m.id) + '">删除</button>' +
+                '</span>' +
+              '</div>' +
+              '<p class="guest-item__text">' + esc(m.content) + '</p>' +
+            '</li>'
+          );
+        }).join("");
+      } catch (err) {
+        gList.innerHTML = '<li class="guest-empty">读取失败，请稍后再试</li>';
       }
-      gList.innerHTML = list.map(function (m, i) {
-        return (
-          '<li class="guest-item">' +
-            '<div class="guest-item__top">' +
-              '<span class="guest-item__name">' + esc(m.name) + '</span>' +
-              '<span class="guest-item__actions">' +
-                '<span class="guest-item__time">' + esc(m.time) + '</span>' +
-                '<button type="button" class="guest-item__del" data-i="' + i + '">删除</button>' +
-              '</span>' +
-            '</div>' +
-            '<p class="guest-item__text">' + esc(m.text) + '</p>' +
-          '</li>'
-        );
-      }).join("");
     }
+
     function openGuest() {
       guestMask.hidden = false;
       if (isOwner()) renderGuest();
@@ -355,37 +433,112 @@
     if (gText && gCount) {
       gText.addEventListener("input", function () { gCount.textContent = gText.value.length + " / 200"; });
     }
+
+    /* 访客提交：只写入数据库，页面不反显 */
     if (gForm) {
-      gForm.addEventListener("submit", function (e) {
+      gForm.addEventListener("submit", async function (e) {
         e.preventDefault();
         const text = (gText.value || "").trim();
         if (!text) { showToast("写点内容再发送吧～"); gText.focus(); return; }
+        if (!SB) { showToast("留言功能暂未开放"); return; }
         const name = (gName.value || "").trim() || "匿名朋友";
-        const d = new Date();
-        const pad = function (n) { return String(n).padStart(2, "0"); };
-        const time = d.getFullYear() + "." + pad(d.getMonth() + 1) + "." + pad(d.getDate()) +
-                     " " + pad(d.getHours()) + ":" + pad(d.getMinutes());
-        const list = readGuest();
-        list.unshift({ name: name, text: text, time: time });
-        writeGuest(list.slice(0, 50));
-        gText.value = "";
-        gName.value = "";
-        gCount.textContent = "0 / 200";
-        if (isOwner()) renderGuest();   // 访客提交后不显示，避免“反显”
-        showToast("✨ 留言已发送，谢谢～");
+        const btn = gForm.querySelector('button[type="submit"]');
+        if (btn) btn.disabled = true;
+        try {
+          const r = await sbFetch("/rest/v1/" + SB.table, {
+            method: "POST",
+            headers: { "Prefer": "return=minimal" },
+            body: JSON.stringify({ name: name, content: text })
+          });
+          if (!r.ok) {
+            const d = await r.text();
+            throw new Error(d.slice(0, 120) || ("HTTP " + r.status));
+          }
+          gText.value = ""; gName.value = "";
+          gCount.textContent = "0 / 200";
+          showToast("✨ 留言已发送，谢谢～");
+          if (isOwner()) renderGuest();
+        } catch (err) {
+          showToast("❌ 发送失败，请稍后再试");
+          console.warn("[guestbook]", err);
+        } finally {
+          if (btn) btn.disabled = false;
+        }
       });
     }
+
+    /* 站长：邮箱验证码登录 */
+    if (gSend) {
+      gSend.addEventListener("click", async function () {
+        if (!SB) { adminErr("后端未配置"); return; }
+        const email = (gEmail.value || "").trim();
+        if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) { adminErr("请填写正确的邮箱"); return; }
+        clearErr();
+        gSend.disabled = true; gSend.textContent = "发送中…";
+        try {
+          const r = await sbFetch("/auth/v1/otp", {
+            method: "POST", body: JSON.stringify({ email: email, create_user: true })
+          });
+          const d = await r.json().catch(function () { return {}; });
+          if (!r.ok) throw new Error(d.msg || d.message || ("HTTP " + r.status));
+          if (gStep1) gStep1.hidden = true;
+          if (gStep2) gStep2.hidden = false;
+          if (gOtp) gOtp.focus();
+          showToast("📮 验证码已发送到邮箱");
+        } catch (err) { adminErr("发送失败：" + err.message); }
+        finally { gSend.disabled = false; gSend.textContent = "发送验证码"; }
+      });
+    }
+    if (gVerify) {
+      gVerify.addEventListener("click", async function () {
+        const email = (gEmail.value || "").trim();
+        const token = (gOtp.value || "").trim();
+        if (!/^\d{6}$/.test(token)) { adminErr("请输入 6 位数字验证码"); return; }
+        clearErr();
+        gVerify.disabled = true; gVerify.textContent = "验证中…";
+        try {
+          const r = await sbFetch("/auth/v1/verify", {
+            method: "POST", body: JSON.stringify({ email: email, token: token, type: "email" })
+          });
+          const d = await r.json().catch(function () { return {}; });
+          if (!r.ok || !d.access_token) throw new Error(d.msg || d.message || ("HTTP " + r.status));
+          saveSession({ access_token: d.access_token, refresh_token: d.refresh_token });
+          if (gOtp) gOtp.value = "";
+          showToast("🔑 验证成功");
+          renderGuest();
+        } catch (err) { adminErr("验证失败：" + err.message); }
+        finally { gVerify.disabled = false; gVerify.textContent = "验证"; }
+      });
+    }
+    if (gOtp) {
+      gOtp.addEventListener("keydown", function (e) { if (e.key === "Enter") gVerify.click(); });
+    }
+    if (gLogout) {
+      gLogout.addEventListener("click", function () {
+        clearSession();
+        showAdminLogin("已退出，重新验证可查看留言");
+        if (gList) gList.innerHTML = "";
+        if (gEmail) gEmail.value = "";
+        showToast("已退出登录");
+      });
+    }
+
+    /* 站长删除留言 */
     if (gList) {
-      gList.addEventListener("click", function (e) {
+      gList.addEventListener("click", async function (e) {
         const btn = e.target.closest(".guest-item__del");
-        if (!btn) return;
-        const i = parseInt(btn.getAttribute("data-i"), 10);
-        const list = readGuest();
-        if (isNaN(i) || !list[i]) return;
-        list.splice(i, 1);
-        writeGuest(list);
-        renderGuest();
-        showToast("已删除这条留言");
+        if (!btn || !isOwner()) return;
+        const id = btn.getAttribute("data-id");
+        const s = await ensureSession();
+        if (!s) { showAdminLogin("登录已过期，请重新验证"); return; }
+        if (!window.confirm("确定删除这条留言吗？")) return;
+        try {
+          const r = await sbFetch("/rest/v1/" + SB.table + "?id=eq." + encodeURIComponent(id),
+                                  { method: "DELETE" }, s.access_token);
+          if (!r.ok) throw new Error("HTTP " + r.status);
+          renderGuest();
+          showToast("已删除这条留言");
+        } catch (err) { showToast("删除失败，请稍后再试"); }
       });
     }
   }

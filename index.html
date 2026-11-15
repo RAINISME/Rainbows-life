@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Rainbow's life</title>
   <meta name="description" content="一个记录工作与生活的个人空间" />
-  <link rel="stylesheet" href="assets/css/style.css?v=20" />
+  <link rel="stylesheet" href="assets/css/style.css?v=21" />
 </head>
 <body>
   <!-- 流动渐变背景 -->
@@ -222,8 +222,24 @@
       <div class="guest-list-wrap">
         <div class="guest-list__head">
           <span>留言板</span>
-          <span class="guest-hint guest-hint--owner">仅显示本机记录</span>
+          <span class="guest-hint guest-hint--owner">仅站长可见</span>
         </div>
+
+        <!-- 站长验证：邮箱验证码登录（Supabase Auth OTP），只在站长模式出现 -->
+        <div class="guest-admin" id="guestAdmin">
+          <p class="guest-admin__tip">验证站长身份后，才能查看访客留言</p>
+          <div class="guest-admin__row" id="guestStep1">
+            <input class="guest-input" id="guestEmail" type="email" placeholder="你的邮箱" autocomplete="email" />
+            <button type="button" class="btn btn--ghost" id="guestSendOtp">发送验证码</button>
+          </div>
+          <div class="guest-admin__row" id="guestStep2" hidden>
+            <input class="guest-input" id="guestOtp" type="text" inputmode="numeric" maxlength="6" placeholder="6 位验证码" />
+            <button type="button" class="btn btn--primary" id="guestVerifyOtp">验证</button>
+          </div>
+          <p class="guest-admin__err" id="guestAdminErr" hidden></p>
+          <button type="button" class="guest-admin__logout" id="guestLogout" hidden>退出登录</button>
+        </div>
+
         <ul class="guest-list" id="guestList"></ul>
       </div>
     </div>
@@ -234,8 +250,8 @@
 
   <button class="to-top" id="toTop" aria-label="回到顶部">↑</button>
 
-  <script src="assets/js/data.js?v=19"></script>
-  <script src="assets/js/main.js?v=17"></script>
+  <script src="assets/js/data.js?v=20"></script>
+  <script src="assets/js/main.js?v=18"></script>
   <script src="assets/js/music.js?v=16"></script>
 </body>
 </html>
