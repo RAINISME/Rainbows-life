@@ -554,6 +554,8 @@
         if (err.status === 401 || /Bad credentials/i.test(err.message)) {
           try { localStorage.removeItem(GH_TOKEN_KEY); } catch (e) { /* ignore */ }
           showToast("❌ Token 无效，已清除，请重新点击发布");
+        } else if (err.status === 403 || /not accessible by personal access token/i.test(err.message)) {
+          showToast("❌ 缺少写权限：去 Token 设置里把 Contents 改成 Read and write");
         } else if (err.status === 404) {
           showToast("❌ 仓库/分支/路径不对，或 Token 无该仓库权限");
         } else {
