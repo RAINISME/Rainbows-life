@@ -174,8 +174,15 @@
         bgMusic.pause();
       }
     });
-    bgMusic.addEventListener("loadedmetadata", function () { musicReady = true; });
-    bgMusic.addEventListener("canplay", function () { musicReady = true; });
+    // 元数据/可播放：就绪并解除降级态（慢网络下加载可能超过兜底超时，成功后要恢复）
+    bgMusic.addEventListener("loadedmetadata", function () {
+      musicReady = true;
+      musicBox.classList.remove("music--empty");
+    });
+    bgMusic.addEventListener("canplay", function () {
+      musicReady = true;
+      musicBox.classList.remove("music--empty");
+    });
     bgMusic.addEventListener("play", function () { musicReady = true; setPlaying(true); saveState(); });
     bgMusic.addEventListener("pause", function () { setPlaying(false); saveState(); });
     bgMusic.addEventListener("timeupdate", function () {
@@ -200,7 +207,8 @@
     });
     bgMusic.addEventListener("error", markMissing);
     // 元数据始终没加载成功（如文件不存在）也进入降级态
-    setTimeout(function () { if (!musicReady) markMissing(); }, 8000);
+    // 20s：线上 GitHub Pages 首次加载 60MB+ 音频可能较慢，不能太短
+    setTimeout(function () { if (!musicReady) markMissing(); }, 20000);
 
     // 点击进度条跳转
     const musicBar = musicBox.querySelector(".music__bar");
