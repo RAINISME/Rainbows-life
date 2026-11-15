@@ -927,3 +927,11 @@ html[data-theme="light"] .journal-add--ghost { border-color: rgba(20, 20, 50, .1
 }
 /* 触屏设备上点击后 :hover 会“粘住”，但 .music--closed 已用 !important 压过，
    这里不再额外隐藏，否则展开状态也会被一起压掉。 */
+
+/* ---------- 留言板：只给站长看 ----------
+   访客提交后不反显，也看不到任何留言记录；
+   站长模式下才展示列表（含删除按钮）。 */
+.guest-list-wrap { display: none; }
+body.is-owner .guest-list-wrap { display: block; }
+.guest-hint--owner { display: none; }
+body.is-owner .guest-hint--owner { display: inline; }

@@ -315,6 +315,8 @@
     }
     function renderGuest() {
       if (!gList) return;
+      // 留言板只给站长看；普通访客提交后不反显，也看不到别人的留言
+      if (!isOwner()) { gList.innerHTML = ""; return; }
       const list = readGuest();
       if (!list.length) {
         gList.innerHTML = '<li class="guest-empty">还没有留言，来写第一条吧～</li>';
@@ -337,7 +339,7 @@
     }
     function openGuest() {
       guestMask.hidden = false;
-      renderGuest();
+      if (isOwner()) renderGuest();
       if (gText) setTimeout(function () { gText.focus(); }, 60);
     }
     function closeGuest() { guestMask.hidden = true; }
@@ -369,8 +371,8 @@
         gText.value = "";
         gName.value = "";
         gCount.textContent = "0 / 200";
-        renderGuest();
-        showToast("✨ 留言已保存，谢谢你～");
+        if (isOwner()) renderGuest();   // 访客提交后不显示，避免“反显”
+        showToast("✨ 留言已发送，谢谢～");
       });
     }
     if (gList) {
