@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Rainbow's life</title>
   <meta name="description" content="一个记录工作与生活的个人空间" />
-  <link rel="stylesheet" href="assets/css/style.css?v=21" />
+  <link rel="stylesheet" href="assets/css/style.css?v=22" />
 </head>
 <body>
   <!-- 流动渐变背景 -->
@@ -25,7 +25,7 @@
 
   <!-- 音乐播放器（全站常驻，跨页保持曲目与进度） -->
   <div class="music" id="musicBox">
-    <audio id="bgMusic" src="assets/audio/02.mp3?v=2" muted preload="metadata" playsinline webkit-playsinline></audio>
+    <audio id="bgMusic" src="assets/audio/02.mp3?v=2" preload="metadata" playsinline webkit-playsinline></audio>
     <div class="music__row">
       <span class="music__disc" id="musicDisc">🎵</span>
       <div class="music__meta">
@@ -153,6 +153,18 @@
       </div>
     </div>
     <div class="journal" id="journalList"></div>
+
+    <!-- 访问看板：只有站长模式可见（body.is-owner） -->
+    <div class="visit-dash" id="visitDash">
+      <div class="vd-head">
+        <h3>📈 访问看板</h3>
+        <button class="journal-add journal-add--ghost" id="vdRefresh" type="button">刷新</button>
+      </div>
+      <div class="vd-stats" id="vdStats"></div>
+      <div id="vdList"></div>
+      <p class="vd-msg" id="vdMsg" hidden></p>
+      <button class="journal-add" id="vdLogin" type="button" hidden>去验证站长身份</button>
+    </div>
   </section>
 
 
@@ -250,8 +262,9 @@
 
   <button class="to-top" id="toTop" aria-label="回到顶部">↑</button>
 
-  <script src="assets/js/data.js?v=20"></script>
-  <script src="assets/js/main.js?v=18"></script>
-  <script src="assets/js/music.js?v=16"></script>
+  <script src="assets/js/data.js?v=21"></script>
+  <script src="assets/js/track.js?v=1"></script>
+  <script src="assets/js/main.js?v=19"></script>
+  <script src="assets/js/music.js?v=17"></script>
 </body>
 </html>

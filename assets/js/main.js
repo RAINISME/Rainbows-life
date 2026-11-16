@@ -90,6 +90,47 @@
   }
   applyOwnerUI();
 
+  /* ---------- Supabase 公共：请求封装 + 站长会话（留言板 / 访问看板共用） ---------- */
+  const SB_BASE = (typeof GUESTBOOK !== "undefined") ? GUESTBOOK : null;
+  const SESS_KEY = "guest-admin-session";
+  function sbFetch(path, opts, token) {
+    const headers = Object.assign({
+      "apikey": SB_BASE.key,
+      "Authorization": "Bearer " + (token || SB_BASE.key),
+      "Content-Type": "application/json"
+    }, (opts && opts.headers) || {});
+    return fetch(SB_BASE.url + path, Object.assign({}, opts, { headers: headers }));
+  }
+  function readSession() { try { return JSON.parse(localStorage.getItem(SESS_KEY) || "null"); } catch (e) { return null; } }
+  function saveSession(s) { try { localStorage.setItem(SESS_KEY, JSON.stringify(s)); } catch (e) { /* ignore */ } }
+  function clearSession() { try { localStorage.removeItem(SESS_KEY); } catch (e) { /* ignore */ } }
+  function jwtPayload(t) {
+    try {
+      const b = t.split(".")[1].replace(/-/g, "+").replace(/_/g, "/");
+      return JSON.parse(decodeURIComponent(atob(b).split("").map(function (c) {
+        return "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2);
+      }).join("")));
+    } catch (e) { return null; }
+  }
+  // access_token 过期时用 refresh_token 续期，避免频繁收验证码
+  async function ensureSession() {
+    let s = readSession();
+    if (!s || !s.access_token) return null;
+    const pl = jwtPayload(s.access_token);
+    if (pl && pl.exp && pl.exp * 1000 > Date.now() + 60000) return s;
+    if (!s.refresh_token) { clearSession(); return null; }
+    try {
+      const r = await sbFetch("/auth/v1/token?grant_type=refresh_token", {
+        method: "POST", body: JSON.stringify({ refresh_token: s.refresh_token })
+      });
+      if (!r.ok) { clearSession(); return null; }
+      const d = await r.json();
+      s = { access_token: d.access_token, refresh_token: d.refresh_token || s.refresh_token };
+      saveSession(s);
+      return s;
+    } catch (e) { clearSession(); return null; }
+  }
+
   /* ---------- 渲染：日常记录（封装成函数，新增后可刷新列表） ---------- */
   let revealObserver = null;
   function renderJournal() {
@@ -292,7 +333,7 @@
   const guestChip = document.getElementById("guestbookChip");
   const guestMask = document.getElementById("guestMask");
   if (guestChip && guestMask) {
-    const SB = (typeof GUESTBOOK !== "undefined") ? GUESTBOOK : null;
+    const SB = SB_BASE;
     const gForm = document.getElementById("guestForm");
     const gName = document.getElementById("guestName");
     const gText = document.getElementById("guestText");
@@ -308,52 +349,15 @@
     const gVerify = document.getElementById("guestVerifyOtp");
     const gErr = document.getElementById("guestAdminErr");
     const gLogout = document.getElementById("guestLogout");
-    const SESS_KEY = "guest-admin-session";
 
     function esc(s) {
       return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) {
         return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
       });
     }
-    function sbFetch(path, opts, token) {
-      const headers = Object.assign({
-        "apikey": SB.key,
-        "Authorization": "Bearer " + (token || SB.key),
-        "Content-Type": "application/json"
-      }, (opts && opts.headers) || {});
-      return fetch(SB.url + path, Object.assign({}, opts, { headers: headers }));
-    }
-    function readSession() { try { return JSON.parse(localStorage.getItem(SESS_KEY) || "null"); } catch (e) { return null; } }
-    function saveSession(s) { try { localStorage.setItem(SESS_KEY, JSON.stringify(s)); } catch (e) { /* ignore */ } }
-    function clearSession() { try { localStorage.removeItem(SESS_KEY); } catch (e) { /* ignore */ } }
+
     function adminErr(msg) { if (gErr) { gErr.textContent = msg; gErr.hidden = false; } }
     function clearErr() { if (gErr) gErr.hidden = true; }
-    function jwtPayload(t) {
-      try {
-        const b = t.split(".")[1].replace(/-/g, "+").replace(/_/g, "/");
-        return JSON.parse(decodeURIComponent(atob(b).split("").map(function (c) {
-          return "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2);
-        }).join("")));
-      } catch (e) { return null; }
-    }
-    // access_token 过期时用 refresh_token 续期，避免频繁收验证码
-    async function ensureSession() {
-      let s = readSession();
-      if (!s || !s.access_token) return null;
-      const pl = jwtPayload(s.access_token);
-      if (pl && pl.exp && pl.exp * 1000 > Date.now() + 60000) return s;
-      if (!s.refresh_token) { clearSession(); return null; }
-      try {
-        const r = await sbFetch("/auth/v1/token?grant_type=refresh_token", {
-          method: "POST", body: JSON.stringify({ refresh_token: s.refresh_token })
-        });
-        if (!r.ok) { clearSession(); return null; }
-        const d = await r.json();
-        s = { access_token: d.access_token, refresh_token: d.refresh_token || s.refresh_token };
-        saveSession(s);
-        return s;
-      } catch (e) { clearSession(); return null; }
-    }
 
     function showAdminLogin(msg) {
       if (!gAdmin) return;
@@ -554,6 +558,105 @@
       toast.classList.remove("show");
       setTimeout(function () { toast.hidden = true; }, 320);
     }, 2200);
+  }
+
+  /* ---------- 站长访问看板：读取 Supabase visits 表，只有站长模式可见 ---------- */
+  const visitDash = document.getElementById("visitDash");
+  if (visitDash && SB_BASE && typeof VISITS !== "undefined") {
+    const vdStats = document.getElementById("vdStats");
+    const vdList = document.getElementById("vdList");
+    const vdMsg = document.getElementById("vdMsg");
+    const vdRefresh = document.getElementById("vdRefresh");
+    const vdLogin = document.getElementById("vdLogin");
+
+    function vdPageName(p) {
+      const map = { "index.html": "🏠 首页", "hobby.html": "🎨 兴趣页", "pet-daily.html": "🐾 宠物日常" };
+      return map[p] || p;
+    }
+    function dayKey(iso) {
+      const d = new Date(iso);
+      if (isNaN(d.getTime())) return "";
+      return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+    }
+    function fmtShort(iso) {
+      const d = new Date(iso);
+      if (isNaN(d.getTime())) return "";
+      const pad = function (n) { return String(n).padStart(2, "0"); };
+      return pad(d.getMonth() + 1) + "." + pad(d.getDate()) + " " + pad(d.getHours()) + ":" + pad(d.getMinutes());
+    }
+
+    async function renderVisits() {
+      if (!vdStats || !vdList || !vdMsg) return;
+      vdMsg.hidden = true;
+      if (vdLogin) vdLogin.hidden = true;
+      const s = await ensureSession();
+      if (!s) {
+        vdStats.innerHTML = "";
+        vdList.innerHTML = "";
+        vdMsg.textContent = "还没有验证站长身份：点击下方按钮，用邮箱验证码登录后就能看到访问数据。";
+        vdMsg.hidden = false;
+        if (vdLogin) vdLogin.hidden = false;
+        return;
+      }
+      try {
+        const r = await sbFetch("/rest/v1/" + VISITS.table + "?select=page,ref,created_at&order=created_at.desc&limit=1000", {}, s.access_token);
+        if (!r.ok) throw new Error("HTTP " + r.status);
+        const rows = await r.json();
+        const total = rows.length;
+        const todayKey = dayKey(new Date().toISOString());
+        let todayCount = 0;
+        const byPage = {};
+        const byDay = {};
+        rows.forEach(function (v) {
+          const dk = dayKey(v.created_at);
+          if (dk === todayKey) todayCount++;
+          byPage[v.page] = (byPage[v.page] || 0) + 1;
+          byDay[dk] = (byDay[dk] || 0) + 1;
+        });
+        /* 最近 7 天柱状图 */
+        const days = [];
+        for (let i = 6; i >= 0; i--) {
+          const d = new Date(); d.setDate(d.getDate() - i);
+          days.push(d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0"));
+        }
+        const maxDay = Math.max.apply(null, days.map(function (d) { return byDay[d] || 0; }).concat([1]));
+        const bars = days.map(function (d) {
+          const n = byDay[d] || 0;
+          const h = Math.max(Math.round((n / maxDay) * 100), n ? 6 : 3);
+          return '<div class="vd-bar"><span class="vd-track"><i style="height:' + h + '%"></i></span>' +
+                 '<span class="vd-n">' + n + '</span><b>' + d.slice(5).replace("-", "/") + '</b></div>';
+        }).join("");
+        /* 各页面占比 */
+        const pages = Object.keys(byPage).sort(function (a, b) { return byPage[b] - byPage[a]; });
+        const pageRows = pages.map(function (p) {
+          return '<li><span>' + vdPageName(p) + '</span><b>' + byPage[p] + '</b></li>';
+        }).join("") || '<li class="vd-empty">暂无数据</li>';
+        /* 最近 10 条访问 */
+        const recent = rows.slice(0, 10).map(function (v) {
+          return '<li><span>' + vdPageName(v.page) + '</span><span class="vd-time">' + fmtShort(v.created_at) + '</span></li>';
+        }).join("") || '<li class="vd-empty">还没有访问记录～</li>';
+
+        vdStats.innerHTML =
+          '<div class="vd-stat"><b>' + total + '</b><span>总访问</span></div>' +
+          '<div class="vd-stat"><b>' + todayCount + '</b><span>今日访问</span></div>' +
+          '<div class="vd-stat"><b>' + pages.length + '</b><span>被访问页面</span></div>';
+        vdList.innerHTML =
+          '<div class="vd-chart">' + bars + '</div>' +
+          '<div class="vd-cols">' +
+            '<div class="vd-col"><h4>各页面访问</h4><ul>' + pageRows + '</ul></div>' +
+            '<div class="vd-col"><h4>最近访问</h4><ul>' + recent + '</ul></div>' +
+          '</div>';
+      } catch (err) {
+        vdMsg.textContent = "访问数据读取失败，请稍后再试。";
+        vdMsg.hidden = false;
+        console.warn("[visits]", err);
+      }
+    }
+    if (vdRefresh) vdRefresh.addEventListener("click", renderVisits);
+    if (vdLogin) vdLogin.addEventListener("click", function () {
+      if (guestChip) { guestChip.click(); showToast("完成邮箱验证后，回到这里点「刷新」"); }
+    });
+    if (isOwner()) renderVisits();
   }
 
   /* GitHub 链接待补充时，阻止空链接跳回页首（换成真实地址后自动失效） */

@@ -1,7 +1,8 @@
 /* ============================================================
    音乐播放器：全站常驻（index / hobby / pet-daily 共用）
    - 跨页保持当前歌曲、播放进度、播放状态（sessionStorage）
-   - 列表循环、进入页面默认播放、浏览器自动播放策略兜底
+   - 列表循环、浏览器自动播放策略兜底
+   - 【已关闭】进入页面自动播放：只有用户手动点 ▶ / 选歌才会响
    ============================================================ */
 (function () {
   "use strict";
@@ -45,7 +46,6 @@
        sessionStorage 在同一标签页的多个页面间共享，各标签互不影响；
        file:// 或隐私模式下可能不可用，全部用 try/catch 静默降级。 */
     const STATE_KEY = "rainbow-music-state";
-    let resumePaused = false;
     let lastSave = 0;
     let lastTime = 0;         // 最近一次有效进度（页面卸载时 currentTime 会被清零）
     let leaving = false;
@@ -98,6 +98,7 @@
       if (musicFill) musicFill.style.width = "0%";
       renderList();
       if (autoplay) {
+        bgMusic.muted = false;   // 用户主动选歌，一定恢复声音
         const p = bgMusic.play();
         if (p && typeof p.catch === "function") {
           p.catch(function (err) {
@@ -267,8 +268,6 @@
 
       if (useSaved) {
         const seekTo = Math.max(0, Number(saved.t) || 0);
-        // 恢复上一页的静音状态（用户已手动开过声音时）
-        if (saved.muted === false) bgMusic.muted = false;
 
         // seek 可能被后续资源加载重置：元数据/可播放事件 + 定时重试，直到生效
         let seekApplied = false;
@@ -293,67 +292,17 @@
         bgMusic.addEventListener("canplay", applySeek);
         applySeek();
         setTimeout(applySeek, 800);
-
-        // 上一页是用户手动暂停的，新页也保持暂停
-        if (saved.playing === false) resumePaused = true;
       } else {
         stateReady = true;
       }
     }
     renderList();
 
-    /* ---------- 进入页面默认处于播放状态 ----------
-       先尝试有声播放（浏览器对常访站点可能放行）；被自动播放策略拦截时
-       退回到静音起播，控件仍是「播放中」，首次点击/按键后恢复声音。 */
-    let autoplayDone = false;
-    let autoplayPending = false;
-    if (resumePaused) autoplayDone = true;   // 上一页是暂停态，本页不自动补播
+    /* ---------- 进入页面不自动播放（已按需求关闭） ----------
+       音乐只在用户手动点击 ▶ 或从歌单选歌后才开始播放；
+       跨页仍会记住同一首歌和播放进度，点播放后从上次位置继续。 */
 
-    function unmuteOnGesture() {
-      autoplayDone = true;          // 用户已交互，之后完全由用户控制
-      if (bgMusic.muted) {
-        bgMusic.muted = false;
-        musicBox.removeAttribute("title");
-        if (!resumePaused && bgMusic.paused) {
-          const p = bgMusic.play();
-          if (p && typeof p.catch === "function") p.catch(function () {});
-        }
-      }
-      document.removeEventListener("pointerdown", unmuteOnGesture);
-      document.removeEventListener("keydown", unmuteOnGesture);
-    }
-    document.addEventListener("pointerdown", unmuteOnGesture);
-    document.addEventListener("keydown", unmuteOnGesture);
-
-    // 音频就绪后补一次播放；只补到成功为止，不会在用户暂停后重新拉起
-    function ensurePlaying() {
-      if (autoplayDone || autoplayPending) return;
-      if (!bgMusic.paused) { autoplayDone = true; return; }
-      autoplayPending = true;
-      bgMusic.muted = false;                       // 先试有声
-      const p = bgMusic.play();
-      if (!p || typeof p.then !== "function") { autoplayPending = false; autoplayDone = true; return; }
-      p.then(function () {
-        musicReady = true; autoplayDone = true; autoplayPending = false;
-      }).catch(function () {
-        bgMusic.muted = true;                     // 静音自动播放一般被允许
-        const p2 = bgMusic.play();
-        if (!p2 || typeof p2.then !== "function") { autoplayPending = false; autoplayDone = true; return; }
-        p2.then(function () {
-          musicReady = true; autoplayDone = true; autoplayPending = false;
-          musicBox.title = "音乐已自动播放（静音）· 点击页面任意处开启声音";
-        }).catch(function () {
-          // 极严格策略下连静音都被拦：等用户第一次点击再播
-          autoplayPending = false; autoplayDone = true;
-          musicBox.title = "🎵 点击页面任意处开始播放";
-        });
-      });
-    }
-    bgMusic.addEventListener("canplay", ensurePlaying);
-    bgMusic.addEventListener("loadedmetadata", ensurePlaying);
-    ensurePlaying();
-
-    // 粗指针设备（手机/平板）：系统常拦截自动播放，给一个明确的「点击播放」提示
+    // 粗指针设备（手机/平板）：未播放时给一个明确的「点击播放」提示
     const coarse = !!(window.matchMedia && window.matchMedia("(pointer: coarse)").matches);
     if (coarse) {
       setTimeout(function () {

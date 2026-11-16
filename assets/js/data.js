@@ -147,3 +147,14 @@ const GUESTBOOK = {
   key: "sb_publishable_kgz6S0Lgy7isr6GZgCqRdw_oSM4h7KL",
   table: "guestbook"
 };
+
+/* ============================================================
+   访问记录（Supabase visits 表）
+   - 每个页面打开时写入一条匿名记录（页面路径 + 来源页），由 track.js 上报。
+   - anon 只能 INSERT（RLS 保证），站长邮箱验证码登录后才能 SELECT，首页看板展示。
+   ============================================================ */
+const VISITS = {
+  url: "https://ojcegjyawjlbmixcvkoh.supabase.co",
+  key: "sb_publishable_kgz6S0Lgy7isr6GZgCqRdw_oSM4h7KL",
+  table: "visits"
+};
