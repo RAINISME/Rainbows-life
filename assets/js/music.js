@@ -116,8 +116,9 @@
       musicToggle.textContent = on ? "❚❚" : "▶";
       musicToggle.setAttribute("aria-label", on ? "暂停" : "播放");
     }
-    // 音频缺失时进入降级态：灰化唱片，保留歌名，副标题提示
+    // 音频缺失时进入降级态：灰化唱片，保留歌名，副标题提示（歌单为空时不触发）
     function markMissing() {
+      if (!playlist.length) return;
       musicReady = false;
       musicBox.classList.add("music--empty");
       musicBox.classList.remove("playing");
@@ -190,6 +191,7 @@
     if (musicListBtn) musicListBtn.addEventListener("click", togglePlaylist);
 
     musicToggle.addEventListener("click", function () {
+      if (!playlist.length) { showToast("🎵 歌单还没配好，等站长想好放哪首歌～"); return; }
       bgMusic.muted = false;   // 手动点播放时一定恢复声音
       if (!musicReady) {
         const t = playlist[current];
@@ -295,6 +297,13 @@
       } else {
         stateReady = true;
       }
+    } else {
+      /* 歌单为空（歌曲还没传）：播放器进入占位状态，等配好歌后自动恢复 */
+      stateReady = true;
+      musicReady = false;
+      musicBox.classList.add("music--empty");
+      if (musicTitle) { musicTitle.textContent = "🎵 歌单待定"; musicTitle.title = ""; }
+      if (musicArtist) musicArtist.textContent = "等站长传歌～";
     }
     renderList();
 

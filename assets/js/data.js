@@ -86,17 +86,13 @@ const PET_VIDEOS = [
   { title: "晒太阳的午后", desc: "窗边最爱的那个位置。", src: "", poster: "" }
 ];
 
-// 音乐播放器歌单（第一首为默认歌曲；列表循环播放、进入页面自动播放）
+// 音乐播放器歌单（第一首为默认歌曲；列表循环播放；进页面不自动播放，用户点 ▶ 或选歌才响）
 // 数据源：全部音频文件都放在项目内 assets/audio/ 下，页面运行时只读这里列的相对路径，
 //         不依赖任何外部目录（微信收到的文件需先复制进 assets/audio/ 再在此登记）。
 // 加歌：把音频（mp3 / wav 均可）放进 assets/audio/，在下面加一行 { title, artist, src } 即可。
-const PLAYLIST = [
-  { title: "曾经最爱", artist: "彩虹", src: "assets/audio/02.mp3?v=2" },
-  { title: "爱死了昨天", artist: "彩虹", src: "assets/audio/01.mp3?v=2" },
-  { title: "小雪（片段）", artist: "彩虹", src: "assets/audio/03.mp3?v=2" },
-  { title: "深爱的人做不了朋友", artist: "彩虹", src: "assets/audio/04.mp3?v=2" },
-  { title: "预谋", artist: "彩虹", src: "assets/audio/05.mp3?v=2" }
-];
+// 注意：歌单为空时播放器自动进入「歌单待定」占位状态，配好歌后自动恢复。
+// 2026-11-16：歌单暂时清空（歌曲文件已从仓库删除），想好用哪首再传回来。
+const PLAYLIST = [];
 
 // 日常记录（倒序：最新的放最上面）
 // mood 可填任意 emoji；tags 随意
