@@ -10,7 +10,7 @@
 // 兴趣与热爱
 // id 用于子页面跳转（hobby.html?h=<id>）；items 为该兴趣下的细分项目
 // item.link 可选：填了就在卡片上显示「查看记录 →」按钮（如跑步对接 running_page 主页）
-const RUNNING_PAGE_URL = "";  // 例："https://rainisme.github.io/running_page/"（部署好后再填）
+const RUNNING_PAGE_URL = "https://rainisme.github.io/running_page/";  // 跑步记录主页（running_page 自动同步 Keep 数据）
 
 const HOBBIES = [
   {
