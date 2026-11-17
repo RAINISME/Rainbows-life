@@ -18,12 +18,14 @@ const HOBBIES = [
     desc: "跑步、骑行、羽毛球、乒乓球、台球，动静皆宜，周末总想动一动。",
     since: "日常",
     items: [
-      { icon: "🏃", name: "跑步", note: "清晨或夜跑，一个人也能很自在。", link: RUNNING_PAGE_URL },
-      { icon: "🚴", name: "骑行", note: "周末刷街，追风一样的自由。" },
+      { icon: "🏃", name: "跑步", note: "清晨或夜跑，一个人也能很自在。", sportType: "跑步" },
+      { icon: "🚴", name: "骑行", note: "周末刷街，追风一样的自由。", sportType: "骑行" },
       { icon: "🏸", name: "羽毛球", note: "约上朋友，一场大汗淋漓。" },
-      { icon: "🏓", name: "乒乓球", note: "国球，办公室也能来两拍。" },
+      { icon: "🏓", name: "乒乓球", note: "国球，办公室也能来两拍。", sportType: "乒乓" },
       { icon: "🎱", name: "台球", note: "安静的专注，杆法即心境。" },
-      { icon: "🏊", name: "游泳", note: "入水一刻，世界都安静了。" }
+      { icon: "🚶", name: "走路", note: "不赶路的步行，也是一种放松。", sportType: "走路" },
+      { icon: "🧘", name: "瑜伽", note: "舒展身体，安放呼吸。", sportType: "瑜伽" },
+      { icon: "💪", name: "健身", note: "力量与坚持的日常。", sportType: "健身" }
     ]
   },
   {
@@ -158,4 +160,15 @@ const VISITS = {
   key: "sb_publishable_kgz6S0Lgy7isr6GZgCqRdw_oSM4h7KL",
   table: "visits",
   countFn: "visit_count"   // Supabase 只读计数函数（SECURITY DEFINER，仅返回总数）
+};
+
+/* ============================================================
+   运动记录（Supabase workouts 表，方案 B）
+   - GitHub Actions 每天从 Keep 抓取跑步/骑行/走路/乒乓等，按类型写入
+   - anon 只读；sport.html 按 ?type= 分类展示
+   ============================================================ */
+const WORKOUTS = {
+  url: "https://ojcegjyawjlbmixcvkoh.supabase.co",
+  key: "sb_publishable_kgz6S0Lgy7isr6GZgCqRdw_oSM4h7KL",
+  table: "workouts"
 };

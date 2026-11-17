@@ -973,3 +973,47 @@ body.is-owner .guest-hint--owner { display: inline; }
   background: var(--brand-grad); -webkit-background-clip: text; background-clip: text; color: transparent;
 }
 .subpage .footer__visits { margin: 40px auto 10px; }
+
+/* ---------- 运动记录详情页（方案 B：Keep 数据分类展示） ---------- */
+.subitem--clickable { cursor: pointer; }
+.subitem__cover { position: absolute; inset: 0; z-index: 2; }
+.subitem__link--alt { margin: 6px 0 0; }
+.sport-tabs {
+  display: flex; flex-wrap: wrap; gap: 8px; justify-content: center;
+  margin: 8px auto 24px; max-width: 720px;
+}
+.sport-tab {
+  display: inline-block; padding: 8px 16px; border-radius: 999px;
+  font-size: 13px; text-decoration: none; color: var(--muted);
+  background: var(--surface); border: 1px solid var(--border);
+  transition: all .3s var(--ease);
+}
+.sport-tab:hover { transform: translateY(-2px); color: var(--accent-1); }
+.sport-tab.on {
+  color: #fff; border-color: transparent;
+  background: linear-gradient(100deg, #7c5cff, #ec4899);
+}
+.sport-stats { display: flex; gap: 12px; flex-wrap: wrap; margin: 0 auto 24px; max-width: 720px; }
+.sport-stat {
+  flex: 1 1 140px; padding: 18px; text-align: center;
+  border-radius: var(--radius-sm); background: var(--surface); border: 1px solid var(--border);
+}
+.sport-stat b {
+  display: block; font-size: 1.9rem; line-height: 1.2;
+  background: var(--brand-grad); -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+.sport-stat span { color: var(--muted); font-size: .8rem; }
+.sport-list { max-width: 720px; margin: 0 auto; }
+.sport-list__title { font-size: 1rem; margin: 0 0 14px; color: var(--text); }
+.sport-item {
+  padding: 14px 18px; margin-bottom: 10px; border-radius: 12px;
+  background: var(--surface); border: 1px solid var(--border);
+}
+.sport-item__date { font-size: .78rem; color: var(--muted); margin-bottom: 4px; }
+.sport-item__name { font-size: .95rem; font-weight: 600; margin-bottom: 6px; }
+.sport-item__meta { font-size: .8rem; color: var(--muted); line-height: 1.7; }
+.sport-loading, .sport-empty {
+  text-align: center; padding: 50px 20px; color: var(--muted); font-size: 1.6rem;
+}
+.sport-empty p { font-size: .95rem; margin: 10px 0 0; }
+.sport-empty__sub { font-size: .8rem !important; opacity: .75; }

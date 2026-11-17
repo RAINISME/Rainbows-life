@@ -38,16 +38,28 @@
 
   document.title = hobby.title + " · Rainbow's life";
 
+  function escHtml(s) {
+    return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) {
+      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
+    });
+  }
+
   const items = (hobby.items || []).map(function (it) {
-    // 有 link 的条目（如跑步）显示「查看记录 →」按钮，链接为空时显示占位提示
     var linkHtml = "";
-    if (typeof it.link !== "undefined") {
+    // B 方案：有 sportType 的卡片（跑步/骑行/走路/乒乓等）显示「查看记录 →」进详情页
+    if (it.sportType) {
+      linkHtml = '<a class="subitem__link" href="sport.html?type=' + encodeURIComponent(it.sportType) +
+                 '">查看' + escHtml(it.name) + '记录 →</a>';
+    } else if (typeof it.link !== "undefined") {
       linkHtml = it.link
         ? '<a class="subitem__link" href="' + it.link + '" target="_blank" rel="noopener noreferrer">查看跑步记录 →</a>'
         : '<span class="subitem__link subitem__link--soon">📈 跑步记录同步中…</span>';
     }
     return (
-      '<div class="subitem reveal">' +
+      '<div class="subitem reveal' + (it.sportType ? ' subitem--clickable' : '') + '">' +
+        (it.sportType
+          ? '<a class="subitem__cover" href="sport.html?type=' + encodeURIComponent(it.sportType) + '" aria-label="查看' + escHtml(it.name) + '记录"></a>'
+          : '') +
         '<span class="subitem__icon">' + it.icon + "</span>" +
         '<div class="subitem__name">' + it.name + "</div>" +
         (it.note ? '<div class="subitem__note">' + it.note + "</div>" : "") +
@@ -56,7 +68,12 @@
     );
   }).join("");
 
-  box.innerHTML = '<div class="subitems">' + items + "</div>";
+  var extra = "";
+  if (id === "sport" && typeof RUNNING_PAGE_URL !== "undefined" && RUNNING_PAGE_URL) {
+    extra = '<a class="subitem__link subitem__link--alt" href="' + RUNNING_PAGE_URL +
+            '" target="_blank" rel="noopener noreferrer">📈 查看完整跑步主页（地图轨迹） →</a>';
+  }
+  box.innerHTML = '<div class="subitems">' + items + extra + "</div>";
 
   /* ---------- 滚动渐显 ---------- */
   const reveals = box.querySelectorAll(".reveal");
