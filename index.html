@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Rainbow's life</title>
   <meta name="description" content="一个记录工作与生活的个人空间" />
-  <link rel="stylesheet" href="assets/css/style.css?v=22" />
+  <link rel="stylesheet" href="assets/css/style.css?v=23" />
 </head>
 <body>
   <!-- 流动渐变背景 -->
@@ -153,18 +153,6 @@
       </div>
     </div>
     <div class="journal" id="journalList"></div>
-
-    <!-- 访问看板：只有站长模式可见（body.is-owner） -->
-    <div class="visit-dash" id="visitDash">
-      <div class="vd-head">
-        <h3>📈 访问看板</h3>
-        <button class="journal-add journal-add--ghost" id="vdRefresh" type="button">刷新</button>
-      </div>
-      <div class="vd-stats" id="vdStats"></div>
-      <div id="vdList"></div>
-      <p class="vd-msg" id="vdMsg" hidden></p>
-      <button class="journal-add" id="vdLogin" type="button" hidden>去验证站长身份</button>
-    </div>
   </section>
 
 
@@ -180,6 +168,7 @@
       </div>
     </div>
     <p class="footer__copy">© <span id="year"></span> 彩虹 · 用心记录每一天</p>
+    <p class="footer__visits" id="visitCountBox" hidden>👀 这里是第 <strong id="visitCount">—</strong> 次被看见</p>
   </footer>
   </div><!-- /.main -->
 
@@ -262,9 +251,9 @@
 
   <button class="to-top" id="toTop" aria-label="回到顶部">↑</button>
 
-  <script src="assets/js/data.js?v=22"></script>
-  <script src="assets/js/track.js?v=1"></script>
-  <script src="assets/js/main.js?v=19"></script>
+  <script src="assets/js/data.js?v=23"></script>
+  <script src="assets/js/track.js?v=2"></script>
+  <script src="assets/js/main.js?v=20"></script>
   <script src="assets/js/music.js?v=18"></script>
 </body>
 </html>

@@ -953,46 +953,14 @@ body.is-owner .guest-hint--owner { display: inline; }
 }
 .guest-admin__logout:hover { color: var(--accent-2); }
 
-/* ---------- 访问看板（只有站长模式可见） ---------- */
-.visit-dash {
-  display: none; margin-top: 28px; padding: 22px;
-  border-radius: var(--radius-sm); background: var(--surface);
-  border: 1px solid var(--border);
+/* ---------- 页脚公开访问次数 ---------- */
+.footer__visits {
+  margin: 12px 0 0; text-align: center;
+  color: var(--muted); font-size: .82rem; letter-spacing: .02em;
 }
-body.is-owner .visit-dash { display: block; }
-.vd-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
-.vd-head h3 { margin: 0; font-size: 1.05rem; }
-.vd-stats { display: flex; gap: 12px; flex-wrap: wrap; margin: 16px 0; }
-.vd-stat {
-  flex: 1 1 120px; padding: 14px; text-align: center;
-  border-radius: 12px; background: var(--surface); border: 1px solid var(--border);
-}
-.vd-stat b {
-  display: block; font-size: 1.7rem; line-height: 1.2;
+.footer__visits[hidden] { display: none; }
+.footer__visits strong {
+  font-size: 1.05rem; font-weight: 700; padding: 0 3px;
   background: var(--brand-grad); -webkit-background-clip: text; background-clip: text; color: transparent;
 }
-.vd-stat span { color: var(--muted); font-size: .8rem; }
-.vd-chart {
-  display: flex; align-items: stretch; gap: 10px; height: 130px; padding: 12px 10px 6px;
-  border-radius: 12px; background: var(--surface); border: 1px solid var(--border);
-}
-.vd-bar { flex: 1 1 0; display: flex; flex-direction: column; align-items: center; gap: 4px; min-width: 0; }
-.vd-track { flex: 1 1 auto; display: flex; align-items: flex-end; justify-content: center; width: 100%; }
-.vd-track i { display: block; width: min(70%, 26px); border-radius: 6px 6px 2px 2px; background: var(--grad); }
-.vd-n { font-size: .72rem; color: var(--muted); }
-.vd-bar b { font-size: .68rem; font-weight: 500; color: var(--muted); }
-.vd-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 14px; }
-.vd-col h4 { margin: 0 0 8px; font-size: .85rem; color: var(--muted); }
-.vd-col ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
-.vd-pages li, .vd-recent li {
-  display: flex; justify-content: space-between; align-items: center;
-  padding: 8px 12px; border-radius: 10px; font-size: .85rem;
-  background: var(--surface); border: 1px solid var(--border);
-}
-.vd-time { color: var(--muted); font-size: .78rem; }
-.vd-empty { color: var(--muted); }
-.vd-msg { margin: 10px 0 0; font-size: .85rem; color: #f59e0b; }
-@media (max-width: 768px) {
-  .vd-cols { grid-template-columns: 1fr; }
-  .vd-stat b { font-size: 1.4rem; }
-}
+.subpage .footer__visits { margin: 40px auto 10px; }
