@@ -32,13 +32,13 @@
   ];
   const cur = SPORTS.filter(function (s) { return s.name === type; })[0] || SPORTS[0];
 
-  document.title = cur.name + "记录 · Rainbow's life";
+  document.title = "运动记录 · Rainbow's life";
   const iconEl = document.getElementById("sportIcon");
   const titleEl = document.getElementById("sportTitle");
   const descEl = document.getElementById("sportDesc");
-  if (iconEl) iconEl.textContent = cur.icon;
-  if (titleEl) titleEl.textContent = cur.name + "记录";
-  if (descEl) descEl.textContent = cur.desc + " 来自 Keep 手环的真实记录，每天自动同步。";
+  if (iconEl) iconEl.textContent = "🏃";
+  if (titleEl) titleEl.textContent = "运动记录";
+  if (descEl) descEl.textContent = "来自 Keep 手环的真实记录，每天自动同步。";
 
   /* ---------- 分类切换标签 ---------- */
   const tabsEl = document.getElementById("sportTabs");

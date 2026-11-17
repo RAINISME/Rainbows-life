@@ -27,8 +27,10 @@
   const hg = document.getElementById("hobbyGrid");
   if (hg && typeof HOBBIES !== "undefined") {
     hg.innerHTML = HOBBIES.map(function (h) {
+      // href 可选：指定后卡片直达该页面（如「运动」直接进运动记录页）
+      var target = h.href ? h.href : ("hobby.html?h=" + encodeURIComponent(h.id));
       return (
-        '<a class="hobby reveal" href="hobby.html?h=' + encodeURIComponent(h.id) + '">' +
+        '<a class="hobby reveal" href="' + target + '">' +
           '<div class="hobby__head">' +
             '<span class="hobby__title">' + h.title + "</span>" +
             '<span class="hobby__icon">' + h.icon + "</span>" +

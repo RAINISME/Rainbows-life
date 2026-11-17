@@ -15,6 +15,7 @@ const RUNNING_PAGE_URL = "https://rainisme.github.io/running_page/";  // 跑步�
 const HOBBIES = [
   {
     id: "sport", icon: "🏃", title: "运动",
+    href: "sport.html",   // 直达运动记录页（跳过细分卡片列表）
     desc: "跑步、骑行、羽毛球、乒乓球、台球，动静皆宜，周末总想动一动。",
     since: "日常",
     items: [
