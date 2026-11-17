@@ -571,6 +571,15 @@ html[data-theme="light"] .theme-toggle .icon-moon { display: block; }
 .subitem__icon { font-size: 30px; display: block; margin-bottom: 12px; }
 .subitem__name { font-family: "Songti SC", "STSong", "SimSun", Georgia, "Times New Roman", serif; font-size: 18px; font-weight: 700; margin-bottom: 6px; }
 .subitem__note { color: var(--muted); font-size: 13.5px; line-height: 1.7; }
+.subitem__link {
+  display: inline-block; margin-top: 16px; padding: 8px 18px;
+  font-size: 12.5px; text-decoration: none; border-radius: 999px;
+  color: var(--accent-1, #7c5cff); border: 1px solid currentColor;
+  transition: transform .3s var(--ease), opacity .3s;
+}
+.subitem__link:hover { transform: translateY(-2px); opacity: .85; }
+.subitem__link--soon { color: var(--muted); opacity: .75; cursor: default; pointer-events: none; }
+.subitem__link--soon:hover { transform: none; }
 
 /* ---------- 我的宠物 ---------- */
 .pet-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 18px; }

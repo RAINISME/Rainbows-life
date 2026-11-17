@@ -39,11 +39,19 @@
   document.title = hobby.title + " · Rainbow's life";
 
   const items = (hobby.items || []).map(function (it) {
+    // 有 link 的条目（如跑步）显示「查看记录 →」按钮，链接为空时显示占位提示
+    var linkHtml = "";
+    if (typeof it.link !== "undefined") {
+      linkHtml = it.link
+        ? '<a class="subitem__link" href="' + it.link + '" target="_blank" rel="noopener noreferrer">查看跑步记录 →</a>'
+        : '<span class="subitem__link subitem__link--soon">📈 跑步记录同步中…</span>';
+    }
     return (
       '<div class="subitem reveal">' +
         '<span class="subitem__icon">' + it.icon + "</span>" +
         '<div class="subitem__name">' + it.name + "</div>" +
         (it.note ? '<div class="subitem__note">' + it.note + "</div>" : "") +
+        linkHtml +
       "</div>"
     );
   }).join("");

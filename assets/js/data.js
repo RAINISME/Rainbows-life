@@ -9,13 +9,16 @@
 
 // 兴趣与热爱
 // id 用于子页面跳转（hobby.html?h=<id>）；items 为该兴趣下的细分项目
+// item.link 可选：填了就在卡片上显示「查看记录 →」按钮（如跑步对接 running_page 主页）
+const RUNNING_PAGE_URL = "";  // 例："https://rainisme.github.io/running_page/"（部署好后再填）
+
 const HOBBIES = [
   {
     id: "sport", icon: "🏃", title: "运动",
     desc: "跑步、骑行、羽毛球、乒乓球、台球，动静皆宜，周末总想动一动。",
     since: "日常",
     items: [
-      { icon: "🏃", name: "跑步", note: "清晨或夜跑，一个人也能很自在。" },
+      { icon: "🏃", name: "跑步", note: "清晨或夜跑，一个人也能很自在。", link: RUNNING_PAGE_URL },
       { icon: "🚴", name: "骑行", note: "周末刷街，追风一样的自由。" },
       { icon: "🏸", name: "羽毛球", note: "约上朋友，一场大汗淋漓。" },
       { icon: "🏓", name: "乒乓球", note: "国球，办公室也能来两拍。" },
