@@ -36,7 +36,9 @@ const HOBBIES = [
     items: [
       { icon: "🎤", name: "唱歌", note: "KTV 麦霸，解压首选。" },
       { icon: "🎸", name: "吉他", note: "弹唱一首，安放安静的夜晚。" },
-      { icon: "🎹", name: "电子琴", note: "随手弹点旋律，治愈自己。" }
+      { icon: "🎹", name: "电子琴", note: "随手弹点旋律，治愈自己。" },
+      { icon: "🪈", name: "陶笛", note: "一小只握在手心，声音空灵又治愈。" },
+      { icon: "🎫", name: "演唱会", note: "现场的热烈，耳机里听不到。" }
     ]
   },
   {
