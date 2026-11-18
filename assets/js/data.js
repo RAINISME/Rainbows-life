@@ -69,16 +69,18 @@ const HOBBIES = [
 const PETS = [
   {
     emoji: "🦜",
-    name: "小芒果 · 小白 · 小绿",
-    species: "虎皮鹦鹉",
+    name: "小芒果 · 小白 · 小绿 · 小叮当 · 小骆驼",
+    species: "虎皮鹦鹉 · 小太阳鹦鹉",
     since: "2025.5.19 至今",
-    desc: "三只小话痨，每天从早叫到晚，家里就没安静过。",
+    desc: "五只小可爱，每天从早叫到晚，家里就没安静过。",
     traits: ["活泼", "粘人", "爱叫", "会说话"],
     dailyUrl: "pet-daily.html",
     photos: [
       { src: "assets/img/pet-mango.webp", alt: "小芒果" },
       { src: "assets/img/pet-white.webp", alt: "小白" },
-      { src: "assets/img/pet-green.webp", alt: "小绿" }
+      { src: "assets/img/pet-green.webp", alt: "小绿" },
+      { src: "assets/img/pet-dingdang.webp", alt: "小叮当" },
+      { src: "assets/img/pet-luotuo.webp", alt: "小骆驼" }
     ]
   }
 ];
