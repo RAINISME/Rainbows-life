@@ -5,6 +5,10 @@ on:
   workflow_dispatch:
   schedule:
     - cron: '0 0 * * *'
+  push:
+    paths:
+      - scripts/keep_sync_supabase.py
+      - .github/workflows/sync_to_supabase.yml
 
 jobs:
   sync:
@@ -14,6 +18,14 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Check secrets configured
+        env:
+          KEEP_MOBILE: ${{ secrets.KEEP_MOBILE }}
+          KEEP_PASSWORD: ${{ secrets.KEEP_PASSWORD }}
+        run: |
+          if [ -z "$KEEP_MOBILE" ]; then echo "::error::KEEP_MOBILE 未配置"; else echo "KEEP_MOBILE 已配置（长度 ${#KEEP_MOBILE}）"; fi
+          if [ -z "$KEEP_PASSWORD" ]; then echo "::error::KEEP_PASSWORD 未配置"; else echo "KEEP_PASSWORD 已配置"; fi
 
       - name: Set up Python
         uses: actions/setup-python@v5
