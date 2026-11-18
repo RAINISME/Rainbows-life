@@ -89,9 +89,11 @@ const PETS = [
    页面会自动把「筹备中」的占位卡替换成可播放的 <video controls>。
    没填 src 的项会继续显示为占位卡。 */
 const PET_VIDEOS = [
-  { title: "第一次学说话", desc: "小芒果的碎碎念，正在剪辑中～", src: "", poster: "" },
-  { title: "三小只的日常", desc: "吃饭、理毛、抢站台，慢慢更新。", src: "", poster: "" },
-  { title: "晒太阳的午后", desc: "窗边最爱的那个位置。", src: "", poster: "" }
+  { title: "两只小可爱", desc: "小芒果和小绿，挤在一起打盹。", src: "assets/video/parrot-1.mp4", poster: "assets/video/parrot-1.webp" },
+  { title: "摸摸小肚子", desc: "翻过来给你摸摸，乖得很。", src: "assets/video/parrot-2.mp4", poster: "assets/video/parrot-2.webp" },
+  { title: "站岗的小鹦鹉", desc: "站在盒子上东张西望。", src: "assets/video/parrot-3.mp4", poster: "assets/video/parrot-3.webp" },
+  { title: "开饭时间", desc: "两只凑一起，埋头干饭。", src: "assets/video/parrot-4.mp4", poster: "assets/video/parrot-4.webp" },
+  { title: "发呆时刻", desc: "安安静静地发会儿呆，也在认真生活。", src: "assets/video/parrot-5.mp4", poster: "assets/video/parrot-5.webp" }
 ];
 
 // 音乐播放器歌单（第一首为默认歌曲；列表循环播放；进页面不自动播放，用户点 ▶ 或选歌才响）
