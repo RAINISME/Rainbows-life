@@ -1017,3 +1017,11 @@ body.is-owner .guest-hint--owner { display: inline; }
 }
 .sport-empty p { font-size: .95rem; margin: 10px 0 0; }
 .sport-empty__sub { font-size: .8rem !important; opacity: .75; }
+.sport-more {
+  display: block; width: 100%; max-width: 720px; margin: 16px auto 0;
+  padding: 12px; cursor: pointer; font-size: 13px;
+  color: var(--muted); background: var(--surface);
+  border: 1px dashed var(--border); border-radius: 12px;
+  transition: all .3s var(--ease);
+}
+.sport-more:hover { color: var(--accent-1); border-color: var(--accent-1); }

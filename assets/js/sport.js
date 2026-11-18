@@ -64,6 +64,44 @@
     return (Math.round(Number(n) * 10) / 10) + (unit || "");
   }
 
+  var allRows = [];       // 全量数据（统计用）
+  var shown = 0;          // 当前已显示的条数
+  var PAGE_SIZE = 10;     // 每页显示条数
+
+  function itemHtml(r) {
+    var bits = [];
+    if (r.duration_min != null) bits.push("⏱ " + fmtNum(r.duration_min, " 分钟"));
+    if (r.distance_km != null && Number(r.distance_km) > 0) bits.push("📍 " + fmtNum(r.distance_km, " km"));
+    if (r.calorie != null) bits.push("🔥 " + r.calorie + " 千卡");
+    if (r.device) bits.push("⌚ " + esc(r.device));
+    return '<div class="sport-item">' +
+             '<div class="sport-item__date">' + esc(r.start_at || "") + '</div>' +
+             '<div class="sport-item__name">' + esc(r.name || cur.name) + '</div>' +
+             '<div class="sport-item__meta">' + bits.join("　") + '</div>' +
+           '</div>';
+  }
+
+  function moreLabel() {
+    return '加载更多（还有 ' + (allRows.length - shown) + ' 条） →';
+  }
+
+  function bindMore() {
+    var btn = document.getElementById("sportMore");
+    if (!btn) return;
+    btn.addEventListener("click", function () {
+      var box = document.getElementById("sportListItems");
+      if (!box) return;
+      var next = Math.min(shown + PAGE_SIZE, allRows.length);
+      box.insertAdjacentHTML("beforeend", allRows.slice(shown, next).map(itemHtml).join(""));
+      shown = next;
+      if (shown >= allRows.length) {
+        btn.remove();  // 全部显示完，按钮消失
+      } else {
+        btn.textContent = moreLabel();
+      }
+    });
+  }
+
   function render(list) {
     if (!listEl || !statsEl) return;
     if (!list.length) {
@@ -72,8 +110,8 @@
         '<p>这类运动还没有记录～</p><p class="sport-empty__sub">数据在 Keep 里记一次，明天同步后就会出现</p></div>';
       return;
     }
-    // 统计
-    let totalMin = 0, totalKm = 0, totalKcal = 0;
+    // 统计基于全量数据
+    var totalMin = 0, totalKm = 0, totalKcal = 0;
     list.forEach(function (r) {
       totalMin += Number(r.duration_min) || 0;
       totalKm += Number(r.distance_km) || 0;
@@ -86,20 +124,13 @@
         ? '<div class="sport-stat"><b>' + fmtNum(totalKm, '') + '</b><span>总里程(km)</span></div>'
         : '<div class="sport-stat"><b>' + fmtNum(totalKcal, '') + '</b><span>总消耗(千卡)</span></div>');
 
-    // 列表（倒序，最新在前）
+    // 列表先只显示 10 条，其余点「加载更多」逐步追加
+    allRows = list;
+    shown = Math.min(PAGE_SIZE, list.length);
     listEl.innerHTML = '<h3 class="sport-list__title">最近记录（共 ' + list.length + ' 条）</h3>' +
-      list.map(function (r) {
-        var bits = [];
-        if (r.duration_min != null) bits.push("⏱ " + fmtNum(r.duration_min, " 分钟"));
-        if (r.distance_km != null && Number(r.distance_km) > 0) bits.push("📍 " + fmtNum(r.distance_km, " km"));
-        if (r.calorie != null) bits.push("🔥 " + r.calorie + " 千卡");
-        if (r.device) bits.push("⌚ " + esc(r.device));
-        return '<div class="sport-item">' +
-                 '<div class="sport-item__date">' + esc(r.start_at || "") + '</div>' +
-                 '<div class="sport-item__name">' + esc(r.name || cur.name) + '</div>' +
-                 '<div class="sport-item__meta">' + bits.join("　") + '</div>' +
-               '</div>';
-      }).join("");
+      '<div id="sportListItems">' + list.slice(0, shown).map(itemHtml).join("") + '</div>' +
+      (shown < list.length ? '<button class="sport-more" id="sportMore" type="button">' + moreLabel() + '</button>' : '');
+    bindMore();
   }
 
   /* ---------- 读取数据（公开只读） ---------- */
