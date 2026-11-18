@@ -57,7 +57,7 @@
       }).join("");
       return (
         '<div class="pet reveal' + (photos ? " pet--wide" : "") + '">' +
-          '<div class="pet__info">' +
+          '<div class="pet__head">' +
             '<div class="pet__topline">' +
               '<span class="pet__emoji">' + p.emoji + "</span>" +
               '<span class="pet__species">' + p.species + "</span>" +
@@ -66,10 +66,12 @@
               '<span class="pet__since">' + p.since + "</span>" +
               (p.dailyUrl ? '<a class="pet__daily" href="' + p.dailyUrl + '">查看日常 →</a>' : "") +
             "</div>" +
+          "</div>" +
+          (photos ? '<div class="pet__photos">' + photos + "</div>" : "") +
+          '<div class="pet__foot">' +
             '<p class="pet__desc">' + p.desc + "</p>" +
             '<div class="pet__traits">' + traits + "</div>" +
           "</div>" +
-          (photos ? '<div class="pet__photos">' + photos + "</div>" : "") +
         "</div>"
       );
     }).join("");

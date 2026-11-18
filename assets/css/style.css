@@ -610,9 +610,13 @@ html[data-theme="light"] .theme-toggle .icon-moon { display: block; }
 .pet__desc { color: var(--muted); font-size: 15px; line-height: 1.9; }
 .pet__traits { margin-top: 18px; display: flex; flex-wrap: wrap; gap: 8px; }
 
-/* 宠物卡：左信息 + 右照片 */
-.pet--wide { grid-column: 1 / -1; display: grid; grid-template-columns: 1fr auto; gap: 26px; align-items: center; }
+/* 宠物卡：顶部信息横排 + 中间照片 + 底部文字标签（纵向堆叠） */
+.pet--wide { grid-column: 1 / -1; display: flex; flex-direction: column; gap: 22px; align-items: stretch; }
+.pet__head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 14px; }
 .pet__photos { display: flex; gap: 12px; align-items: flex-end; width: 100%; }
+.pet__foot { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 14px; }
+.pet__foot .pet__desc { flex: 1 1 320px; margin: 0; }
+.pet__foot .pet__traits { margin-top: 0; justify-content: flex-end; }
 .pet__photo { margin: 0; text-align: center; flex: 1 1 0; min-width: 0; }
 .pet__photo img {
   width: 100%; max-width: 190px; height: 250px; object-fit: cover;
@@ -624,8 +628,11 @@ html[data-theme="light"] .theme-toggle .icon-moon { display: block; }
   font-size: 16px; font-weight: 700; color: var(--text);
 }
 @media (max-width: 640px) {
-  .pet--wide { grid-template-columns: 1fr; gap: 18px; }
-  .pet__photos { order: -1; gap: 10px; width: 100%; }
+  .pet--wide { gap: 18px; }
+  .pet__head { flex-direction: column; align-items: flex-start; }
+  .pet__foot { flex-direction: column; align-items: flex-start; }
+  .pet__foot .pet__traits { justify-content: flex-start; }
+  .pet__photos { gap: 10px; width: 100%; }
   /* 关键：让每个 figure 均分容器宽度，图片再撑满 figure，避免百分比循环依赖 */
   .pet__photo { flex: 1 1 0; min-width: 0; }
   .pet__photo img { width: 100%; height: 150px; }
