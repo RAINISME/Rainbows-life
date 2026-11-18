@@ -156,8 +156,10 @@ def main():
     mobile = os.environ.get("KEEP_MOBILE")
     password = os.environ.get("KEEP_PASSWORD")
     if not mobile or not password:
-        print("缺少 KEEP_MOBILE / KEEP_PASSWORD 环境变量", file=sys.stderr)
-        sys.exit(1)
+        # 未配置 Secrets 时优雅跳过，避免每天定时任务报红
+        print("⚠️ 未配置 KEEP_MOBILE / KEEP_PASSWORD，跳过本次同步（已有数据不受影响）")
+        print("   如需自动同步：仓库 Settings → Secrets and variables → Actions 添加这两项")
+        return
 
     auth = keep_login(mobile, password)
     all_rows = []
