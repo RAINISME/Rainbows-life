@@ -36,13 +36,38 @@ DTYPE_MAP = {
 CST = timezone(timedelta(hours=8))
 
 
-def http(url, data=None, headers=None, method=None, timeout=40):
+def http(url, data=None, headers=None, method=None, timeout=40, retries=3):
     h = {"User-Agent": UA, "Content-Type": "application/x-www-form-urlencoded;charset=utf-8"}
     if headers:
         h.update(headers)
     body = urllib.parse.urlencode(data).encode() if data else None
-    req = urllib.request.Request(url, data=body, headers=h, method=method)
-    return urllib.request.urlopen(req, timeout=timeout)
+    last_err = None
+    for attempt in range(retries):
+        try:
+            req = urllib.request.Request(url, data=body, headers=h, method=method)
+            return urllib.request.urlopen(req, timeout=timeout)
+        except Exception as e:  # 网络抖动重试
+            last_err = e
+            if attempt < retries - 1:
+                time.sleep(2 + attempt * 2)
+    raise last_err
+
+
+def http_raw(url, data=None, headers=None, method=None, timeout=60, retries=3):
+    """原始 body（JSON）请求，带重试"""
+    h = {}
+    if headers:
+        h.update(headers)
+    last_err = None
+    for attempt in range(retries):
+        try:
+            req = urllib.request.Request(url, data=data, headers=h, method=method)
+            return urllib.request.urlopen(req, timeout=timeout)
+        except Exception as e:
+            last_err = e
+            if attempt < retries - 1:
+                time.sleep(2 + attempt * 2)
+    raise last_err
 
 
 def keep_login(mobile, password):
@@ -130,7 +155,7 @@ def sb_existing_ids():
     start = 0
     while True:
         url = SB_URL + "/rest/v1/" + SB_TABLE + "?select=keep_id&order=keep_id&limit=1000&offset=%d" % start
-        r = urllib.request.urlopen(urllib.request.Request(url, headers=sb_headers()), timeout=60)
+        r = http(url, headers=sb_headers(), method="GET", retries=4)
         batch = json.loads(r.read().decode())
         for row in batch:
             ids.add(row["keep_id"])
@@ -145,8 +170,7 @@ def sb_insert_batch(rows):
     body = json.dumps(rows, ensure_ascii=False).encode()
     h = sb_headers()
     h["Prefer"] = "return=minimal,resolution=ignore-duplicates"
-    req = urllib.request.Request(url, data=body, headers=h, method="POST")
-    r = urllib.request.urlopen(req, timeout=60)
+    r = http_raw(url, data=body, headers=h, method="POST", retries=4)
     if r.status >= 300:
         raise RuntimeError("写入失败 HTTP %d: %s" % (r.status, r.read().decode()[:200]))
     return r.status
