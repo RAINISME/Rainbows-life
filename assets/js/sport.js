@@ -74,11 +74,12 @@
     if (r.distance_km != null && Number(r.distance_km) > 0) bits.push("📍 " + fmtNum(r.distance_km, " km"));
     if (r.calorie != null) bits.push("🔥 " + r.calorie + " 千卡");
     if (r.device) bits.push("⌚ " + esc(r.device));
-    return '<div class="sport-item">' +
-             '<div class="sport-item__date">' + esc(r.start_at || "") + '</div>' +
+    var href = "workout.html?id=" + encodeURIComponent(r.keep_id);
+    return '<a class="sport-item" href="' + href + '">' +
+             '<div class="sport-item__date">' + esc(r.start_at || "") + '<span class="sport-item__more">详情 →</span></div>' +
              '<div class="sport-item__name">' + esc(r.name || cur.name) + '</div>' +
              '<div class="sport-item__meta">' + bits.join("　") + '</div>' +
-           '</div>';
+           '</a>';
   }
 
   function moreLabel() {
