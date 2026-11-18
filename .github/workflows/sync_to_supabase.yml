@@ -24,8 +24,10 @@ jobs:
           KEEP_MOBILE: ${{ secrets.KEEP_MOBILE }}
           KEEP_PASSWORD: ${{ secrets.KEEP_PASSWORD }}
         run: |
-          if [ -z "$KEEP_MOBILE" ]; then echo "::error::KEEP_MOBILE 未配置"; else echo "KEEP_MOBILE 已配置（长度 ${#KEEP_MOBILE}）"; fi
-          if [ -z "$KEEP_PASSWORD" ]; then echo "::error::KEEP_PASSWORD 未配置"; else echo "KEEP_PASSWORD 已配置"; fi
+          missing=0
+          if [ -z "$KEEP_MOBILE" ]; then echo "::error::KEEP_MOBILE 未配置，请在 Settings → Secrets and variables → Actions 添加"; missing=1; else echo "KEEP_MOBILE 已配置（长度 ${#KEEP_MOBILE}）"; fi
+          if [ -z "$KEEP_PASSWORD" ]; then echo "::error::KEEP_PASSWORD 未配置，请在 Settings → Secrets and variables → Actions 添加"; missing=1; else echo "KEEP_PASSWORD 已配置"; fi
+          if [ "$missing" = "1" ]; then exit 1; fi
 
       - name: Set up Python
         uses: actions/setup-python@v5
