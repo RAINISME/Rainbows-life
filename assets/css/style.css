@@ -1070,3 +1070,6 @@ a.sport-item:hover { transform: translateY(-2px); border-color: var(--accent-1);
 .follow-box__qr img { display: block; width: 240px; height: auto; border-radius: 6px; }
 .follow-box__id { margin: 18px 0 0; color: var(--muted); font-size: .88rem; }
 .follow-box__id strong { color: var(--text); letter-spacing: .5px; }
+/* ---------- 演唱会页 ---------- */
+.concert-tabs { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin: 8px auto 24px; max-width: 720px; }
+.concert-note { max-width: 720px; margin: 0 auto 16px; text-align: center; color: var(--muted); font-size: .85rem; }

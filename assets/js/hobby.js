@@ -46,6 +46,10 @@
 
   const items = (hobby.items || []).map(function (it) {
     var linkHtml = "";
+    // 通用 href：卡片可跳转到自定义页面（如演唱会）
+    if (it.href) {
+      linkHtml = '<a class="subitem__link" href="' + it.href + '">查看' + escHtml(it.name) + ' →</a>';
+    }
     // B 方案：有 sportType 的卡片（跑步/骑行/走路/乒乓等）显示「查看记录 →」进详情页
     if (it.sportType) {
       linkHtml = '<a class="subitem__link" href="sport.html?type=' + encodeURIComponent(it.sportType) +
@@ -55,11 +59,14 @@
         ? '<a class="subitem__link" href="' + it.link + '" target="_blank" rel="noopener noreferrer">查看跑步记录 →</a>'
         : '<span class="subitem__link subitem__link--soon">📈 跑步记录同步中…</span>';
     }
+    var clickable = it.sportType || it.href;
     return (
-      '<div class="subitem reveal' + (it.sportType ? ' subitem--clickable' : '') + '">' +
+      '<div class="subitem reveal' + (clickable ? ' subitem--clickable' : '') + '">' +
         (it.sportType
           ? '<a class="subitem__cover" href="sport.html?type=' + encodeURIComponent(it.sportType) + '" aria-label="查看' + escHtml(it.name) + '记录"></a>'
-          : '') +
+          : (it.href
+            ? '<a class="subitem__cover" href="' + it.href + '" aria-label="查看' + escHtml(it.name) + '"></a>'
+            : '')) +
         '<span class="subitem__icon">' + it.icon + "</span>" +
         '<div class="subitem__name">' + it.name + "</div>" +
         (it.note ? '<div class="subitem__note">' + it.note + "</div>" : "") +

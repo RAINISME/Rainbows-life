@@ -35,10 +35,10 @@ const HOBBIES = [
     since: "从小",
     items: [
       { icon: "🎤", name: "唱歌", note: "KTV 麦霸，解压首选。" },
+      { icon: "🎫", name: "演唱会", note: "现场的热烈，耳机里听不到。", href: "concert.html" },
       { icon: "🎸", name: "吉他", note: "弹唱一首，安放安静的夜晚。" },
       { icon: "🎹", name: "电子琴", note: "随手弹点旋律，治愈自己。" },
-      { icon: "🪈", name: "陶笛", note: "一小只握在手心，声音空灵又治愈。" },
-      { icon: "🎫", name: "演唱会", note: "现场的热烈，耳机里听不到。" }
+      { icon: "🪈", name: "陶笛", note: "一小只握在手心，声音空灵又治愈。" }
     ]
   },
   {
@@ -95,6 +95,42 @@ const PET_VIDEOS = [
   { title: "摸摸小肚子", desc: "翻过来给你摸摸，乖得很。", src: "assets/video/parrot-2.mp4", poster: "assets/video/parrot-2.webp" },
   { title: "站岗的小鹦鹉", desc: "站在盒子上东张西望。", src: "assets/video/parrot-3.mp4", poster: "assets/video/parrot-3.webp" },
   { title: "开饭时间", desc: "两只凑一起，埋头干饭。", src: "assets/video/parrot-4.mp4", poster: "assets/video/parrot-4.webp" }
+];
+
+// 演唱会视频（按歌手分类，视频已压缩放在 assets/video/concert/）
+// 视频来源：Keep 那批里后来新上传的演唱会视频，压缩后按舞台/字幕识别归类
+const CONCERTS = [
+  {
+    artist: "任贤齐", icon: "🎤", note: "Richie Jen · 那些年的歌",
+    videos: [
+      { src: "assets/video/concert/concert-01.mp4", poster: "assets/video/concert/concert-01.webp", title: "现场 · 粉衣造型" },
+      { src: "assets/video/concert/concert-02.mp4", poster: "assets/video/concert/concert-02.webp", title: "伤心太平洋" },
+      { src: "assets/video/concert/concert-03.mp4", poster: "assets/video/concert/concert-03.webp", title: "Richie Jen 舞台" },
+      { src: "assets/video/concert/concert-04.mp4", poster: "assets/video/concert/concert-04.webp", title: "爱的国度" },
+      { src: "assets/video/concert/concert-05.mp4", poster: "assets/video/concert/concert-05.webp", title: "有时候快乐有时候感伤" },
+      { src: "assets/video/concert/concert-06.mp4", poster: "assets/video/concert/concert-06.webp", title: "现场 · 骑摩托舞台" }
+    ]
+  },
+  {
+    artist: "凤凰传奇", icon: "🎤", note: "玲花 · 曾毅",
+    videos: [
+      { src: "assets/video/concert/concert-07.mp4", poster: "assets/video/concert/concert-07.webp", title: "现场 · 蓝色星空" },
+      { src: "assets/video/concert/concert-08.mp4", poster: "assets/video/concert/concert-08.webp", title: "现场 · 灯光" },
+      { src: "assets/video/concert/concert-09.mp4", poster: "assets/video/concert/concert-09.webp", title: "现场 · 四面台" },
+      { src: "assets/video/concert/concert-10.mp4", poster: "assets/video/concert/concert-10.webp", title: "现场 · 乐队" }
+    ]
+  },
+  {
+    artist: "伍佰", icon: "🎸", note: "Wu Bai · Rock Star",
+    videos: [
+      { src: "assets/video/concert/concert-11.mp4", poster: "assets/video/concert/concert-11.webp", title: "现场 · 中分黑西装" },
+      { src: "assets/video/concert/concert-12.mp4", poster: "assets/video/concert/concert-12.webp", title: "现场 · 红色舞台" }
+    ]
+  },
+  {
+    artist: "刀郎", icon: "🎸", note: "山歌响起的地方",
+    videos: []
+  }
 ];
 
 // 音乐播放器歌单（第一首为默认歌曲；列表循环播放；进页面不自动播放，用户点 ▶ 或选歌才响）
