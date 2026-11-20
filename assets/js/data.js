@@ -121,7 +121,9 @@ const CONCERTS = [
       { src: "assets/video/concert/concert-11.mp4", poster: "assets/video/concert/concert-11.webp", title: "现场 · 中分黑西装" },
       { src: "assets/video/concert/concert-12.mp4", poster: "assets/video/concert/concert-12.webp", title: "现场 · 红色舞台" }
     ]
-  }
+  },
+  { artist: "凤凰传奇", icon: "🎤", note: "玲花 · 曾毅", videos: [] },
+  { artist: "刀郎", icon: "🎸", note: "山歌响起的地方", videos: [] }
 ];
 
 // 音乐播放器歌单（第一首为默认歌曲；列表循环播放；进页面不自动播放，用户点 ▶ 或选歌才响）
