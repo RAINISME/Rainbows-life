@@ -108,12 +108,7 @@ const CONCERTS = [
       { src: "assets/video/concert/concert-03.mp4", poster: "assets/video/concert/concert-03.webp", title: "Richie Jen 舞台" },
       { src: "assets/video/concert/concert-04.mp4", poster: "assets/video/concert/concert-04.webp", title: "爱的国度" },
       { src: "assets/video/concert/concert-05.mp4", poster: "assets/video/concert/concert-05.webp", title: "有时候快乐有时候感伤" },
-      { src: "assets/video/concert/concert-06.mp4", poster: "assets/video/concert/concert-06.webp", title: "现场 · 骑摩托舞台" }
-    ]
-  },
-  {
-    artist: "凤凰传奇", icon: "🎤", note: "玲花 · 曾毅",
-    videos: [
+      { src: "assets/video/concert/concert-06.mp4", poster: "assets/video/concert/concert-06.webp", title: "现场 · 骑摩托舞台" },
       { src: "assets/video/concert/concert-07.mp4", poster: "assets/video/concert/concert-07.webp", title: "现场 · 蓝色星空" },
       { src: "assets/video/concert/concert-08.mp4", poster: "assets/video/concert/concert-08.webp", title: "现场 · 灯光" },
       { src: "assets/video/concert/concert-09.mp4", poster: "assets/video/concert/concert-09.webp", title: "现场 · 四面台" },
@@ -126,10 +121,6 @@ const CONCERTS = [
       { src: "assets/video/concert/concert-11.mp4", poster: "assets/video/concert/concert-11.webp", title: "现场 · 中分黑西装" },
       { src: "assets/video/concert/concert-12.mp4", poster: "assets/video/concert/concert-12.webp", title: "现场 · 红色舞台" }
     ]
-  },
-  {
-    artist: "刀郎", icon: "🎸", note: "山歌响起的地方",
-    videos: []
   }
 ];
 
